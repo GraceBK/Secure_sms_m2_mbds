@@ -45,8 +45,9 @@ public class LoginActivity extends AppCompatActivity {
         tv_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent createOnActivity = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(createOnActivity);
+                Intent goToRegister = new Intent(LoginActivity.this, RegisterActivity.class);
+                //goToRegister.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(goToRegister);
             }
         });
     }

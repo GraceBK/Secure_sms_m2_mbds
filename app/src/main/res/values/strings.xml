@@ -4,4 +4,7 @@
     <string name="password">Password</string>
     <string name="username">Username</string>
     <string name="create_account">No account yet ? Create one</string>
+    <string name="register">Create account</string>
+    <string name="already_member">Already a member? Login</string>
+    <string name="name">Name</string>
 </resources>
