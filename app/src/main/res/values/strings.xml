@@ -7,4 +7,7 @@
     <string name="register">Create account</string>
     <string name="already_member">Already a member? Login</string>
     <string name="name">Name</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
