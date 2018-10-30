@@ -27,8 +27,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login() {
-        if (et_username.getText().toString().equals("toto") && (et_password.getText().toString().equals("tata"))) {
+        if (et_username.getText().toString().equals("") && (et_password.getText().toString().equals(""))) {
             btn_login.setBackgroundColor(Color.GREEN);
+            Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(goToMain);
+            finish();
         } else {
             btn_login.setBackgroundColor(Color.RED);
         }

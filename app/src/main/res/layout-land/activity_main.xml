@@ -20,17 +20,23 @@
             android:id="@+id/main_fl_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4"/>
+            android:layout_weight="4.9"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1"
+            android:background="@color/colorPrimary"/>
 
         <FrameLayout
-            android:id="@+id/main_fl_chat"
+            android:id="@+id/main_fl_viewer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4"/>
+            android:layout_weight="3"/>
 
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <!--android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,6 +44,6 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_new_sms"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"/-->
 
 </android.support.constraint.ConstraintLayout>

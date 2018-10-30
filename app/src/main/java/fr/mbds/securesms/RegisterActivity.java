@@ -27,7 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void register() {
-        if (et_username.getText().toString().equals("toto") && (et_password.getText().toString().equals("tata"))) {
+        if (et_username.getText().toString().equals("") && (et_password.getText().toString().equals(""))) {
             btn_create.setBackgroundColor(Color.GREEN);
             Intent goToMain = new Intent(RegisterActivity.this, MainActivity.class);
             startActivity(goToMain);
