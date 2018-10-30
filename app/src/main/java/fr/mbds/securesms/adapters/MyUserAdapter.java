@@ -7,19 +7,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import fr.mbds.securesms.R;
-import fr.mbds.securesms.models.User;
+import fr.mbds.securesms.db.room_db.Personnes;
 
 public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHolder> {
 
-    private ArrayList<User> userArrayList;
+    private List<Personnes> personnesList;
 
-    public MyUserAdapter(ArrayList<User> userArrayList) {
-        this.userArrayList = userArrayList;
+    public MyUserAdapter(List<Personnes> personnesList) {
+        this.personnesList = personnesList;
     }
 
     @NonNull
@@ -36,16 +35,21 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
      */
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-        User user = userArrayList.get(i);
-        myViewHolder.username.setText(user.getUsername());
-        myViewHolder.shortResume.setText(user.getResume());
+        Personnes personnes = personnesList.get(i);
+        myViewHolder.username.setText(personnes.getUsername());
+        //myViewHolder.mail.setText(personnes.getMail());
     }
 
     @Override
     public int getItemCount() {
-        return userArrayList.size();
+        return personnesList.size();
     }
 
+
+    public void updatePersonneList(List<Personnes> personnes) {
+        this.personnesList = personnes;
+        notifyDataSetChanged();
+    }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -58,7 +62,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
 
             linearLayout = itemView.findViewById(R.id.item_ll);
             username = itemView.findViewById(R.id.item_list_username);
-            shortResume = itemView.findViewById(R.id.item_list_resume);
+            //shortResume = itemView.findViewById(R.id.item_list_resume);
 
             /*linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override

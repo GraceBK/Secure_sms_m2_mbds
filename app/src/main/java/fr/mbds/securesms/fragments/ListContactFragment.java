@@ -1,8 +1,13 @@
 package fr.mbds.securesms.fragments;
 
+import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -18,22 +23,27 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
-import fr.mbds.securesms.models.User;
+import fr.mbds.securesms.db.room_db.AppDatabase;
+import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.view_model.PersonnesViewModel;
 
 public class ListContactFragment extends Fragment {
 
-    private EditText test;
-    private Button send;
     private FloatingActionButton fab;
 
 
     private RecyclerView recyclerView;
     private MyUserAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<User> userArrayList = new ArrayList<>();
+    private List<Personnes> personnesList;
+
+    private AppDatabase db;
+    PersonnesViewModel viewModel;
 
 
     private Bundle args;
@@ -42,6 +52,14 @@ public class ListContactFragment extends Fragment {
 
     public ListContactFragment() {
         // Required empty public constructor
+
+//        personnesList = db.personnesDao().getAllPersonnes();
+
+        /*personnesList.add(new Personnes("Grace", "bcezlbfczivbzb"));
+        personnesList.add(new Personnes("BOUKOU", "efkj"));
+        personnesList.add(new Personnes("Coucou", "fhzjfhbzheivf"));
+        personnesList.add(new Personnes("Grace", "bcezlbfczivbzb"));*/
+
         args = new Bundle();
     }
 
@@ -52,11 +70,25 @@ public class ListContactFragment extends Fragment {
 
         recyclerView = rootView.findViewById(R.id.list_contact_rc);
 
-        adapter = new MyUserAdapter(userArrayList);
+        db = AppDatabase.getDatabase(getActivity().getApplicationContext());
+        personnesList = db.personnesDao().getAllPersonnes();
+
+        adapter = new MyUserAdapter(personnesList);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+
+
+        viewModel = ViewModelProviders.of(this).get(PersonnesViewModel.class);
+        viewModel.getPersonneList().observe(this, new Observer<List<Personnes>>() {
+            @Override
+            public void onChanged(@Nullable List<Personnes> personnes) {
+                adapter.updatePersonneList(personnes);
+            }
+        });
+
+
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
@@ -67,12 +99,33 @@ public class ListContactFragment extends Fragment {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                 int pos = recyclerView.getChildAdapterPosition(child);
 
-                args.putString("USERNAME", userArrayList.get(pos).getUsername());
-                args.putString("RESUME", userArrayList.get(pos).getResume());
-                fragment.setArguments(args);
-                Log.e("SEND", userArrayList.get(pos).toString()+motionEvent.getAction());
+                try
+                {
+                    args.putString("USERNAME", personnesList.get(pos).getUsername());
+                    // args.putString("RESUME", personnesList.get(pos).getResume());
+                    fragment.setArguments(args);
+                    Log.e("SEND", personnesList.get(pos).toString() + " --- " + motionEvent.getAction());
 
-                int currentOrientation = getResources().getConfiguration().orientation;
+                    int currentOrientation = getResources().getConfiguration().orientation;
+
+                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.main_fl_list, fragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    } else {
+                        Log.e("JE SUIS", "ICI ");
+                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.main_fl_viewer, fragment);
+                        fragmentTransaction.commit();
+                        Log.e("JE SUIS", "ICI 2");
+                    }
+                } catch (Exception e) {
+                    Log.e("ERROR", "No Element");
+                }
+
+
+                /*int currentOrientation = getResources().getConfiguration().orientation;
 
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -83,7 +136,7 @@ public class ListContactFragment extends Fragment {
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.main_fl_viewer, fragment).addToBackStack(null);
                     fragmentTransaction.commit();
-                }
+                }*/
 
                 return false;
             }
@@ -99,11 +152,6 @@ public class ListContactFragment extends Fragment {
             }
         });
 
-
-        userArrayList.add(new User("Grace", "bcezlbfczivbzb"));
-        userArrayList.add(new User("BOUKOU", "efkj"));
-        userArrayList.add(new User("Coucou", "fhzjfhbzheivf"));
-        userArrayList.add(new User("Grace", "bcezlbfczivbzb"));
 
 
         /*test = rootView.findViewById(R.id.text);
@@ -136,7 +184,8 @@ public class ListContactFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int currentOrientation = getResources().getConfiguration().orientation;
+                setData();
+                /*int currentOrientation = getResources().getConfiguration().orientation;
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.main_fl_list, fragment).addToBackStack(null);
@@ -146,11 +195,30 @@ public class ListContactFragment extends Fragment {
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.main_fl_viewer, fragment).addToBackStack(null);
                     fragmentTransaction.commit();
-                }
+                }*/
             }
         });
 
         return rootView;
+    }
+
+
+    @SuppressLint("StaticFieldLeak")
+    private void setData() {
+        Random rand = new Random();
+
+        Personnes personnes = new Personnes();
+        personnes.setUsername("Grace BOUKOU " + rand.nextInt(50) + 1);
+
+        new AsyncTask<Personnes, Void, Void>() {
+            @Override
+            protected Void doInBackground(Personnes... personnes) {
+                for (Personnes personne : personnes) {
+                    db.personnesDao().insertPersonnes(personne);
+                }
+                return null;
+            }
+        }.execute(personnes);
     }
 
     @Override
