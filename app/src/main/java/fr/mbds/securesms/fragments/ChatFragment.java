@@ -46,8 +46,8 @@ public class ChatFragment extends Fragment {
         //args = getArguments();
         //if (args != null) {
         if (getArguments() != null) {
-            Log.e("RECEIVE", getArguments().getString("TEXT"));
-            res.setText(getArguments().getString("TEXT"));
+            Log.e("RECEIVE", getArguments().getString("USERNAME"));
+            res.setText(getArguments().getString("USERNAME"));
         }
         //} else {
           //  res.setText("vide");

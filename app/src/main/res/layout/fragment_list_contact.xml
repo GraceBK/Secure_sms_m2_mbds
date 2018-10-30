@@ -12,14 +12,13 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!--android.support.v7.widget.RecyclerView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/list_contact_rc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/fab_margin"/-->
+            android:layout_height="match_parent" />
 
-        <LinearLayout
-            android:id="@+id/list_contact_rc"
+        <!--LinearLayout
+            android:id="@+id/list_contact_rcA"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -37,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:text="send"/>
 
-        </LinearLayout>
+        </LinearLayout-->
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
