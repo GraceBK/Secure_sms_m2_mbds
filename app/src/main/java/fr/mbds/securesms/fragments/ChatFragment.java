@@ -1,5 +1,6 @@
 package fr.mbds.securesms.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -54,6 +55,16 @@ public class ChatFragment extends Fragment {
         //}
 
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        /*if (context instanceof ListContactFragment.iCallable) {
+            listener = (ListContactFragment.iCallable) context;
+        } else {
+            throw new ClassCastException(context.toString() + "must implement iCallable");
+        }*/
     }
 
 }

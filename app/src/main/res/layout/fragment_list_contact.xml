@@ -12,10 +12,35 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar_loyout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <fr.mbds.securesms.utils.CustomTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFF"
+                    android:textStyle="bold"
+                    android:textSize="30sp"
+                    android:textAlignment="center"
+                    android:text="@string/app_name"/>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_contact_rc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_below="@+id/app_bar_loyout"/>
 
         <!--LinearLayout
             android:id="@+id/list_contact_rcA"

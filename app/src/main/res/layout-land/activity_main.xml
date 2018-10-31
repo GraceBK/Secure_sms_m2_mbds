@@ -20,7 +20,7 @@
             android:id="@+id/main_fl_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4.9"/>
+            android:layout_weight="4"/>
 
         <View
             android:layout_width="10dp"
@@ -32,7 +32,7 @@
             android:id="@+id/main_fl_viewer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="4"/>
 
     </LinearLayout>
 

@@ -1,5 +1,6 @@
 package fr.mbds.securesms;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,7 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
 
@@ -16,7 +16,7 @@ public class MainActivity extends FragmentActivity {
 
     FrameLayout fl_list;
     FrameLayout fl_chat;
-    FloatingActionButton floatingActionButton;
+//    FloatingActionButton floatingActionButton;
 
     ChatFragment chatFragment = new ChatFragment();
     ListContactFragment listContactFragment = new ListContactFragment();
@@ -27,6 +27,17 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Get intent, action and MIME type
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                handleSendText(intent); // Handle text being sent
+            }
+        }
+
         setContentView(R.layout.activity_main);
         fl_list = findViewById(R.id.main_fl_list);
         fl_chat = findViewById(R.id.main_fl_viewer);
@@ -78,6 +89,15 @@ public class MainActivity extends FragmentActivity {
         // Checks the orientation of the screen
         updateDisplay();
     }
+
+
+    void handleSendText(Intent intent) {
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) {
+            // TODO : Update UI to reflect text being shared
+        }
+    }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
