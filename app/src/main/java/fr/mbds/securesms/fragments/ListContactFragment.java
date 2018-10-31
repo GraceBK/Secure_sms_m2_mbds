@@ -31,9 +31,12 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.iCallable;
 import fr.mbds.securesms.view_model.PersonnesViewModel;
 
 public class ListContactFragment extends Fragment {
+
+    iCallable callback;
 
     private FloatingActionButton fab;
 
@@ -49,19 +52,22 @@ public class ListContactFragment extends Fragment {
 
     private Bundle args;
 
+    private boolean swipe = false;
+
     private Fragment fragment = new ChatFragment();
 
     public ListContactFragment() {
-        // Required empty public constructor
-
-//        personnesList = db.personnesDao().getAllPersonnes();
-
-        /*personnesList.add(new Personnes("Grace", "bcezlbfczivbzb"));
-        personnesList.add(new Personnes("BOUKOU", "efkj"));
-        personnesList.add(new Personnes("Coucou", "fhzjfhbzheivf"));
-        personnesList.add(new Personnes("Grace", "bcezlbfczivbzb"));*/
-
         args = new Bundle();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof iCallable) {
+            callback = (iCallable) context;
+        } else {
+            throw new ClassCastException(context.toString() + "must implement callback");
+        }
     }
 
     @Override
@@ -105,9 +111,21 @@ public class ListContactFragment extends Fragment {
                     args.putString("USERNAME", personnesList.get(pos).getUsername());
                     // args.putString("RESUME", personnesList.get(pos).getResume());
                     fragment.setArguments(args);
-                    Log.e("SEND", personnesList.get(pos).toString() + " --- " + motionEvent.getAction());
+//                    Log.e("ListFragment", personnesList.get(pos).getUsername() + " --- " + motionEvent.getAction());
 
+                    Log.e("SWIPE 1", "bbb");
+                    sendDataToChatFragment(args);
+
+                    Log.e("SWIPE 1", "aaa");
+                    Log.e("SWIPE 1", ""+swipe);
                     int currentOrientation = getResources().getConfiguration().orientation;
+                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                        // Je change le boolean
+                        swipe = !swipe;
+                    }
+                    Log.e("SWIPE 2", ""+swipe);
+
+                    /*int currentOrientation = getResources().getConfiguration().orientation;
 
                     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -120,9 +138,9 @@ public class ListContactFragment extends Fragment {
                         fragmentTransaction.replace(R.id.main_fl_viewer, fragment);
                         fragmentTransaction.commit();
                         Log.e("JE SUIS", "ICI 2");
-                    }
+                    }*/
                 } catch (Exception e) {
-                    Log.e("ERROR", "No Element");
+                    // Log.e("ERROR", "No Element");
                 }
 
 
@@ -203,6 +221,11 @@ public class ListContactFragment extends Fragment {
         return rootView;
     }
 
+    public void sendDataToChatFragment(Bundle bundle) {
+//        Log.e("----> ", bundle.toString());
+        callback.transferData(bundle);
+        Log.e("----> ", bundle.toString());
+    }
 
     @SuppressLint("StaticFieldLeak")
     private void setData() {
@@ -230,5 +253,13 @@ public class ListContactFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
+
+    public boolean isSwipe() {
+        return swipe;
+    }
+
+    public void setSwipe(boolean swipe) {
+        this.swipe = swipe;
     }
 }

@@ -25,7 +25,7 @@ public class ChatFragment extends Fragment {
      * @param TEXT
      * @return
      */
-    public static ChatFragment newInstance(String TEXT) {
+    /*public static ChatFragment newInstance(String TEXT) {
         ChatFragment f = new ChatFragment();
 
         Bundle args = new Bundle();
@@ -33,7 +33,7 @@ public class ChatFragment extends Fragment {
         f.setArguments(args);
 
         return f;
-    }
+    }*/
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,14 +57,19 @@ public class ChatFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    //@Override
+    //public void onAttach(Context context) {
+      //  super.onAttach(context);
         /*if (context instanceof ListContactFragment.iCallable) {
             listener = (ListContactFragment.iCallable) context;
         } else {
             throw new ClassCastException(context.toString() + "must implement iCallable");
         }*/
+    //}
+
+    public void setBundle(Bundle bundle) {
+        Log.i("ChatFragment", bundle.toString());
+        this.res.setText(bundle.getString("USERNAME"));
     }
 
 }

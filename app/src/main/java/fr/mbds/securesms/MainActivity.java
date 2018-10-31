@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements iCallable {
 
     FrameLayout fl_list;
     FrameLayout fl_chat;
@@ -75,7 +76,13 @@ public class MainActivity extends FragmentActivity {
             //finish();
         } else {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(fl_list.getId(), listContactFragment);
+            if (a) {
+                fragmentTransaction.replace(fl_list.getId(), listContactFragment);
+            } else {
+                fragmentTransaction.replace(fl_list.getId(), chatFragment);
+            }
+            listContactFragment.setSwipe(true);
+            a = !a;
             fragmentTransaction.commit();
             hideSystemUI();
         }
@@ -95,6 +102,7 @@ public class MainActivity extends FragmentActivity {
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
             // TODO : Update UI to reflect text being shared
+            Log.e("SHARE TEXT", ""+sharedText);
         }
     }
 
@@ -132,5 +140,17 @@ public class MainActivity extends FragmentActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    @Override
+    public void transferData(Bundle bundle) {
+        Log.d("MainActivity", bundle.toString());
+        chatFragment.setBundle(bundle);
+
+        updateDisplay();
+
+        /*FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(fl_list.getId(), chatFragment);
+        fragmentTransaction.commit();*/
     }
 }
