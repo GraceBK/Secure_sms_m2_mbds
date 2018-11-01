@@ -6,4 +6,6 @@ public interface iCallable {
 
     public void transferData(Bundle bundle);
 
+    public void clickItem(boolean click);
+
 }

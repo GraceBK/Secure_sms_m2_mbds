@@ -114,16 +114,19 @@ public class ListContactFragment extends Fragment {
 //                    Log.e("ListFragment", personnesList.get(pos).getUsername() + " --- " + motionEvent.getAction());
 
                     Log.e("SWIPE 1", "bbb");
-                    sendDataToChatFragment(args);
+
 
                     Log.e("SWIPE 1", "aaa");
                     Log.e("SWIPE 1", ""+swipe);
                     int currentOrientation = getResources().getConfiguration().orientation;
                     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                         // Je change le boolean
-                        swipe = !swipe;
+                        //swipe = !swipe;
+                        setSwipe(true);
+                        click(swipe);
                     }
                     Log.e("SWIPE 2", ""+swipe);
+                    sendDataToChatFragment(args);
 
                     /*int currentOrientation = getResources().getConfiguration().orientation;
 
@@ -225,6 +228,11 @@ public class ListContactFragment extends Fragment {
 //        Log.e("----> ", bundle.toString());
         callback.transferData(bundle);
         Log.e("----> ", bundle.toString());
+    }
+
+    public void click(boolean click) {
+        Log.e("MainActivity_clickItem", "------> "+click);
+        callback.clickItem(click);
     }
 
     @SuppressLint("StaticFieldLeak")

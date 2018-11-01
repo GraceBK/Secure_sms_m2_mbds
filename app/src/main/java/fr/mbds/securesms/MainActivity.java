@@ -1,5 +1,6 @@
 package fr.mbds.securesms;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -9,6 +10,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
@@ -67,6 +80,7 @@ public class MainActivity extends FragmentActivity implements iCallable {
     }
 
     private void updateDisplay() {
+        Log.i("MainActivity_clickItem", "la");
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //setupFullScreenMode();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -76,13 +90,13 @@ public class MainActivity extends FragmentActivity implements iCallable {
             //finish();
         } else {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            if (a) {
+            if (!listContactFragment.isSwipe()) {
                 fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             } else {
                 fragmentTransaction.replace(fl_list.getId(), chatFragment);
             }
-            listContactFragment.setSwipe(true);
-            a = !a;
+            //listContactFragment.setSwipe(true);
+            //a = !a;
             fragmentTransaction.commit();
             hideSystemUI();
         }
@@ -145,6 +159,68 @@ public class MainActivity extends FragmentActivity implements iCallable {
     @Override
     public void transferData(Bundle bundle) {
         Log.d("MainActivity", bundle.toString());
+        byte[] plaintext = bundle.getString("USERNAME").getBytes();
+        KeyPairGenerator keygen = null;
+        try {
+            keygen = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        keygen.initialize(2048);
+        KeyPair keyPair = keygen.genKeyPair();
+
+        Log.e("PUBLIC", ""+keyPair.getPublic());
+        Log.e("PRIVATE", ""+keyPair.getPrivate());
+
+        Cipher cipher = null;
+        try {
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        byte[] cipherText = new byte[0];
+        try {
+            cipherText = cipher.doFinal(plaintext);
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("ENCRYPT", ""+new String(cipherText));
+
+        Cipher cipher1 = null;
+        try {
+            cipher1 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+        try {
+            cipher1.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        byte[] decryptedText = new byte[0];
+        try {
+            decryptedText = cipher1.doFinal(cipherText);
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+        String decrypted = new String(decryptedText);
+
+        Log.d("DECRYPT", ""+decrypted);
+
         chatFragment.setBundle(bundle);
 
         updateDisplay();
@@ -152,5 +228,32 @@ public class MainActivity extends FragmentActivity implements iCallable {
         /*FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(fl_list.getId(), chatFragment);
         fragmentTransaction.commit();*/
+    }
+
+    @Override
+    public void clickItem(boolean click) {
+        Log.d("MainActivity_clickItem", "J'ai cliqué 1 "+click);
+        updateDisplay();
+        /*FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(fl_list.getId(), chatFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();*/
+    }
+
+    @Override
+    public void onBackPressed() {
+        boolean clickBack1 = true;
+        boolean clickBack2 = true;
+        Log.d("MainActivity_clickItem", "J'ai cliqué -- 1 "+listContactFragment.isSwipe());
+        clickBack1 = listContactFragment.isSwipe();
+        listContactFragment.setSwipe(false);
+        Log.d("MainActivity_clickItem", "J'ai cliqué -- 2 "+listContactFragment.isSwipe());
+        clickBack2 = listContactFragment.isSwipe();
+        // (!A and !B) = !(A or B)
+        if (!(clickBack1 || clickBack2)) {
+            super.onBackPressed();
+            finish();
+        }
+        updateDisplay();
     }
 }

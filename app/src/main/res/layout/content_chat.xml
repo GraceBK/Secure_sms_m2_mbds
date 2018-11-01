@@ -15,27 +15,46 @@
         android:weightSum="12"
         android:padding="5dp">
 
-        <android.support.v7.widget.RecyclerView
+        <!--<android.support.v7.widget.RecyclerView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="10"
+            android:layout_weight="1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/linear_edit"/>
+            app:layout_constraintBottom_toTopOf="@id/linear_edit"/>-->
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="--> Message en claire"/>
+
+        <TextView
+            android:id="@+id/show"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chat" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="--> Message chiffre"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Message en claire"/>
+
+
+
+<!--
         <View
             android:layout_width="0dp"
             android:layout_height="2dp"
             android:background="#DFDFDF"
             android:layout_marginBottom="0dp"/>
-
-        <TextView
-            android:id="@+id/show"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Chat" />
 
         <LinearLayout
             android:id="@+id/linear_edit"
@@ -78,7 +97,7 @@
 
             </android.support.v7.widget.CardView>
 
-            <!--android.support.design.widget.FloatingActionButton
+            <-android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_send"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -86,7 +105,7 @@
                 android:layout_margin="10dp"
                 android:scaleType="center"
                 app:elevation=".5dp"
-                app:srcCompat="@null" /-->
+                app:srcCompat="@null" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -96,7 +115,7 @@
                 android:stateListAnimator="@null"/>
 
         </LinearLayout>
-
+-->
 
 
     </LinearLayout>
