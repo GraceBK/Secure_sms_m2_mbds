@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import java.util.List;
 import java.util.Random;
 
+import fr.mbds.securesms.CreateContactActivity;
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
@@ -34,6 +35,14 @@ import fr.mbds.securesms.view_model.PersonnesViewModel;
 public class ListContactFragment extends Fragment {
 
     iCallable callback;
+
+    public interface iCallable {
+
+        void transferData(Bundle bundle);
+
+        void clickItem(boolean click);
+
+    }
 
     private FloatingActionButton fab;
 
@@ -67,11 +76,11 @@ public class ListContactFragment extends Fragment {
         }
     }
 
-    @Override
+    /*@Override
     public void onDetach() {
         super.onDetach();
         callback = null;
-    }
+    }*/
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -103,31 +112,33 @@ public class ListContactFragment extends Fragment {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                if(motionEvent.getAction() != MotionEvent.ACTION_UP)
-                    return false;
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP && motionEvent.getAction() != MotionEvent.ACTION_MOVE) {
 
-                View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                int pos = recyclerView.getChildAdapterPosition(child);
-
-
-                try {
-                    args.putString("USERNAME", personnesList.get(pos).getUsername());
-                    // args.putString("RESUME", personnesList.get(pos).getResume());
-                    //fragment.setArguments(args);
+                    View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+                    int pos = recyclerView.getChildAdapterPosition(child);
 
 
-                    int currentOrientation = getResources().getConfiguration().orientation;
-                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                        // Je change le boolean
-                        setSwipe(true);
-                        click(swipe);
+                    try {
+                        args.putString("USERNAME", personnesList.get(pos).getUsername());
+                        // args.putString("RESUME", personnesList.get(pos).getResume());
+                        //fragment.setArguments(args);
 
+
+                        int currentOrientation = getResources().getConfiguration().orientation;
+                        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                            // Je change le boolean
+                            setSwipe(true);
+                            click(swipe);
+
+                        }
+
+                        sendDataToChatFragment(args);
+                    } catch (Exception e) {
+                        // Log.e("ERROR", "No Element");
                     }
 
-                    sendDataToChatFragment(args);
-                } catch (Exception e) {
-                    // Log.e("ERROR", "No Element");
                 }
+                    // return false;
                 return false;
             }
 
@@ -146,6 +157,8 @@ public class ListContactFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent createContact = new Intent(getContext(), CreateContactActivity.class);
+                startActivity(createContact);
                 setData();
             }
         });
@@ -154,10 +167,8 @@ public class ListContactFragment extends Fragment {
     }
 
     public void sendDataToChatFragment(Bundle bundle) {
-//        Log.e("----> ", bundle.toString());
         if (callback != null) {
             callback.transferData(bundle);
-            Log.e("----> ", bundle.toString());
         }
     }
 

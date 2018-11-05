@@ -8,25 +8,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import android.widget.Toast;
 
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
 
-public class MainActivity extends FragmentActivity implements iCallable {
+public class MainActivity extends FragmentActivity implements ListContactFragment.iCallable {
+
+
 
     FrameLayout fl_list;
     FrameLayout fl_chat;
-//    FloatingActionButton floatingActionButton;
 
     ChatFragment chatFragment = new ChatFragment();
     ListContactFragment listContactFragment = new ListContactFragment();
@@ -53,47 +45,23 @@ public class MainActivity extends FragmentActivity implements iCallable {
 
         updateDisplay();
 
-
-        /*floatingActionButton = findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                a = !a;
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                if (a) {
-                    fragmentTransaction.replace(fl_list.getId(), listContactFragment);
-                } else {
-                    fragmentTransaction.replace(fl_chat.getId(), chatFragment);
-                }
-
-                fragmentTransaction.commit();
-            }
-        });*/
-
     }
 
     private void updateDisplay() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //setupFullScreenMode();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             fragmentTransaction.replace(fl_chat.getId(), chatFragment);
-            fragmentTransaction.commit();
         } else {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             if (!listContactFragment.isSwipe()) {
                 fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             } else {
-                Bundle bundle = new Bundle();
-                bundle.putString("USERNAME", "Coucou");
-                Log.e("aaaaaaa", "------");
-                //chatFragment.setBundle(bundle);
-                chatFragment.setArguments(bundle);
                 fragmentTransaction.replace(fl_list.getId(), chatFragment);
             }
-            fragmentTransaction.commit();
-            hideSystemUI();
+//            hideSystemUI();
         }
+        fragmentTransaction.commit();
     }
 
 
@@ -102,7 +70,7 @@ public class MainActivity extends FragmentActivity implements iCallable {
         super.onConfigurationChanged(newConfig);
 
         // Checks the orientation of the screen
-        updateDisplay();
+        // updateDisplay();
     }
 
 
@@ -152,74 +120,8 @@ public class MainActivity extends FragmentActivity implements iCallable {
 
     @Override
     public void transferData(Bundle bundle) {
-/*
-        Log.d("MainActivity", bundle.toString());
-        byte[] plaintext = bundle.getString("USERNAME").getBytes();
-        KeyPairGenerator keygen = null;
-        try {
-            keygen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        keygen.initialize(2048);
-        KeyPair keyPair = keygen.genKeyPair();
-
-        Log.e("PUBLIC", ""+keyPair.getPublic());
-        Log.e("PRIVATE", ""+keyPair.getPrivate());
-
-        Cipher cipher = null;
-        try {
-            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        byte[] cipherText = new byte[0];
-        try {
-            cipherText = cipher.doFinal(plaintext);
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
-
-        Log.d("ENCRYPT", ""+new String(cipherText));
-
-        Cipher cipher1 = null;
-        try {
-            cipher1 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-        try {
-            cipher1.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        byte[] decryptedText = new byte[0];
-        try {
-            decryptedText = cipher1.doFinal(cipherText);
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
-        String decrypted = new String(decryptedText);
-
-        Log.d("DECRYPT", ""+decrypted);
-*/
-
-        chatFragment.setBundle(bundle);
-
-        updateDisplay();
+        Toast.makeText(this, ""+bundle, Toast.LENGTH_SHORT).show();
+        chatFragment.changeDataPropriete(bundle);
     }
 
     @Override

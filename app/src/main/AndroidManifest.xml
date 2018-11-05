@@ -13,27 +13,29 @@
             android:name=".SplashScreen"
             android:screenOrientation="portrait"
             android:theme="@style/CustomByGraceBK">
-            <!--intent-filter>
+
+            <!--
+            intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter-->
+            </intent-filter
+            -->
         </activity>
         <activity
             android:name=".MainActivity"
             android:theme="@style/CustomByGraceBK">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
+                <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity
@@ -44,6 +46,10 @@
             android:name=".RegisterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CustomByGraceBK" />
+        <activity
+            android:name=".CreateContactActivity"
+            android:label="@string/title_activity_create_contact"
+            android:theme="@style/CustomByGraceBK"></activity>
     </application>
 
 </manifest>
