@@ -15,6 +15,12 @@ public class KryptosRSA {
     private static final String PUBLIC_KEY = "RSAPublicKey";
     private static final String PRIVATE_KEY = "RSAPrivateKey";
 
+
+    public void chiffrement(String text) {
+        /*Cipher cipher = Cipher.getInstance("RAS");
+        cipher.init(Cipher.ENCRYPT_MODE, PRIVATE_KEY);]*/
+    }
+
 /*
     private PublicKey publicKey;
     private PrivateKey privateKey;

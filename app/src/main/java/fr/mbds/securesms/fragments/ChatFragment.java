@@ -46,8 +46,9 @@ public class ChatFragment extends Fragment {
 
         //args = getArguments();
         //if (args != null) {
+        Log.e("@@@@@@", ""+getArguments());
         if (getArguments() != null) {
-            Log.e("RECEIVE", getArguments().getString("USERNAME"));
+            Log.e("RECEIVE", getArguments()+"");
             res.setText(getArguments().getString("USERNAME"));
         }
         //} else {
@@ -68,8 +69,9 @@ public class ChatFragment extends Fragment {
     //}
 
     public void setBundle(Bundle bundle) {
-        Log.i("ChatFragment", bundle.toString());
-        this.res.setText(bundle.getString("USERNAME"));
+        Log.i("ChatFragment2", bundle.toString() + " " + bundle.getString("USERNAME"));
+        res.setText(bundle.getString("USERNAME"));
+        Log.i("ChatFragmenuiuyggèiuhi1", bundle.toString());
     }
 
 }

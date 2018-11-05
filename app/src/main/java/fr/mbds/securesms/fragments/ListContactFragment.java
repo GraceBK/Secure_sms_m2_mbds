@@ -11,19 +11,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -54,7 +51,7 @@ public class ListContactFragment extends Fragment {
 
     private boolean swipe = false;
 
-    private Fragment fragment = new ChatFragment();
+    //private Fragment fragment = new ChatFragment();
 
     public ListContactFragment() {
         args = new Bundle();
@@ -68,6 +65,12 @@ public class ListContactFragment extends Fragment {
         } else {
             throw new ClassCastException(context.toString() + "must implement callback");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callback = null;
     }
 
     @Override
@@ -106,60 +109,25 @@ public class ListContactFragment extends Fragment {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                 int pos = recyclerView.getChildAdapterPosition(child);
 
-                try
-                {
+
+                try {
                     args.putString("USERNAME", personnesList.get(pos).getUsername());
                     // args.putString("RESUME", personnesList.get(pos).getResume());
-                    fragment.setArguments(args);
-//                    Log.e("ListFragment", personnesList.get(pos).getUsername() + " --- " + motionEvent.getAction());
-
-                    Log.e("SWIPE 1", "bbb");
+                    //fragment.setArguments(args);
 
 
-                    Log.e("SWIPE 1", "aaa");
-                    Log.e("SWIPE 1", ""+swipe);
                     int currentOrientation = getResources().getConfiguration().orientation;
                     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                         // Je change le boolean
-                        //swipe = !swipe;
                         setSwipe(true);
                         click(swipe);
+
                     }
-                    Log.e("SWIPE 2", ""+swipe);
+
                     sendDataToChatFragment(args);
-
-                    /*int currentOrientation = getResources().getConfiguration().orientation;
-
-                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.main_fl_list, fragment);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-                    } else {
-                        Log.e("JE SUIS", "ICI ");
-                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.main_fl_viewer, fragment);
-                        fragmentTransaction.commit();
-                        Log.e("JE SUIS", "ICI 2");
-                    }*/
                 } catch (Exception e) {
                     // Log.e("ERROR", "No Element");
                 }
-
-
-                /*int currentOrientation = getResources().getConfiguration().orientation;
-
-                if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_list, fragment).addToBackStack(null);
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                } else {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_viewer, fragment).addToBackStack(null);
-                    fragmentTransaction.commit();
-                }*/
-
                 return false;
             }
 
@@ -174,50 +142,11 @@ public class ListContactFragment extends Fragment {
             }
         });
 
-
-
-        /*test = rootView.findViewById(R.id.text);
-        send = rootView.findViewById(R.id.send);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                args.putString("TEXT", test.getText().toString());
-                fragment.setArguments(args);
-                Log.e("SEND", test.getText().toString());
-
-                int currentOrientation = getResources().getConfiguration().orientation;
-
-                if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_list, fragment).addToBackStack(null);
-                    //fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                } else {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_viewer, fragment).addToBackStack(null);
-                    fragmentTransaction.commit();
-                }
-            }
-        });*/
-
-
-
         fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setData();
-                /*int currentOrientation = getResources().getConfiguration().orientation;
-                if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_list, fragment).addToBackStack(null);
-                    //fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
-                } else {
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.main_fl_viewer, fragment).addToBackStack(null);
-                    fragmentTransaction.commit();
-                }*/
             }
         });
 
@@ -226,12 +155,13 @@ public class ListContactFragment extends Fragment {
 
     public void sendDataToChatFragment(Bundle bundle) {
 //        Log.e("----> ", bundle.toString());
-        callback.transferData(bundle);
-        Log.e("----> ", bundle.toString());
+        if (callback != null) {
+            callback.transferData(bundle);
+            Log.e("----> ", bundle.toString());
+        }
     }
 
     public void click(boolean click) {
-        Log.e("MainActivity_clickItem", "------> "+click);
         callback.clickItem(click);
     }
 

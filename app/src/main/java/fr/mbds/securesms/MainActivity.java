@@ -1,10 +1,8 @@
 package fr.mbds.securesms;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -19,9 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
@@ -36,7 +32,6 @@ public class MainActivity extends FragmentActivity implements iCallable {
     ListContactFragment listContactFragment = new ListContactFragment();
 
     boolean a = true;
-    boolean isLand = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +50,6 @@ public class MainActivity extends FragmentActivity implements iCallable {
         setContentView(R.layout.activity_main);
         fl_list = findViewById(R.id.main_fl_list);
         fl_chat = findViewById(R.id.main_fl_viewer);
-
-        int orientation = getResources().getConfiguration().orientation;
 
         updateDisplay();
 
@@ -80,23 +73,24 @@ public class MainActivity extends FragmentActivity implements iCallable {
     }
 
     private void updateDisplay() {
-        Log.i("MainActivity_clickItem", "la");
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //setupFullScreenMode();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             fragmentTransaction.replace(fl_chat.getId(), chatFragment);
             fragmentTransaction.commit();
-            //finish();
         } else {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             if (!listContactFragment.isSwipe()) {
                 fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             } else {
+                Bundle bundle = new Bundle();
+                bundle.putString("USERNAME", "Coucou");
+                Log.e("aaaaaaa", "------");
+                //chatFragment.setBundle(bundle);
+                chatFragment.setArguments(bundle);
                 fragmentTransaction.replace(fl_list.getId(), chatFragment);
             }
-            //listContactFragment.setSwipe(true);
-            //a = !a;
             fragmentTransaction.commit();
             hideSystemUI();
         }
@@ -158,6 +152,7 @@ public class MainActivity extends FragmentActivity implements iCallable {
 
     @Override
     public void transferData(Bundle bundle) {
+/*
         Log.d("MainActivity", bundle.toString());
         byte[] plaintext = bundle.getString("USERNAME").getBytes();
         KeyPairGenerator keygen = null;
@@ -220,35 +215,23 @@ public class MainActivity extends FragmentActivity implements iCallable {
         String decrypted = new String(decryptedText);
 
         Log.d("DECRYPT", ""+decrypted);
+*/
 
         chatFragment.setBundle(bundle);
 
         updateDisplay();
-
-        /*FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(fl_list.getId(), chatFragment);
-        fragmentTransaction.commit();*/
     }
 
     @Override
     public void clickItem(boolean click) {
-        Log.d("MainActivity_clickItem", "J'ai cliqué 1 "+click);
         updateDisplay();
-        /*FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(fl_list.getId(), chatFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();*/
     }
 
     @Override
     public void onBackPressed() {
-        boolean clickBack1 = true;
-        boolean clickBack2 = true;
-        Log.d("MainActivity_clickItem", "J'ai cliqué -- 1 "+listContactFragment.isSwipe());
-        clickBack1 = listContactFragment.isSwipe();
+        boolean clickBack1 = listContactFragment.isSwipe();
         listContactFragment.setSwipe(false);
-        Log.d("MainActivity_clickItem", "J'ai cliqué -- 2 "+listContactFragment.isSwipe());
-        clickBack2 = listContactFragment.isSwipe();
+        boolean clickBack2 = listContactFragment.isSwipe();
         // (!A and !B) = !(A or B)
         if (!(clickBack1 || clickBack2)) {
             super.onBackPressed();
