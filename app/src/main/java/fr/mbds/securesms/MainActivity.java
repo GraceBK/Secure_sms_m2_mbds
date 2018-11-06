@@ -13,7 +13,7 @@ import android.widget.Toast;
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
 
-public class MainActivity extends FragmentActivity implements ListContactFragment.iCallable {
+public class MainActivity extends FragmentActivity implements ListContactFragment.InterfaceClickListener {
 
 
 
@@ -42,6 +42,18 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
         setContentView(R.layout.activity_main);
         fl_list = findViewById(R.id.main_fl_list);
         fl_chat = findViewById(R.id.main_fl_viewer);
+
+        if (findViewById(R.id.main_fl_list) != null) {
+//            Toast.makeText(this, ""+ savedInstanceState, Toast.LENGTH_SHORT).show();
+        }
+
+        if (savedInstanceState == null) {
+            Toast.makeText(this, "1 "+ savedInstanceState, Toast.LENGTH_SHORT).show();
+            ListContactFragment listContactFragment1 = new ListContactFragment();
+            listContactFragment1.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(fl_list.getId(), chatFragment);
+            Toast.makeText(this, "2 "+ savedInstanceState, Toast.LENGTH_SHORT).show();
+        }
 
         updateDisplay();
 
@@ -120,8 +132,42 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 
     @Override
     public void transferData(Bundle bundle) {
-        Toast.makeText(this, ""+bundle, Toast.LENGTH_SHORT).show();
-        chatFragment.changeDataPropriete(bundle);
+        Toast.makeText(this, "-->"+bundle, Toast.LENGTH_SHORT).show();
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.e("AZERTY",  "++++"+bundle+"----"+chatFragment);
+            chatFragment.setArguments(bundle);
+        }
+
+        if (chatFragment != null) {
+            Log.e("AZERTY",  "****"+bundle+"----"+chatFragment);
+            chatFragment.changeDataPropriete(bundle);
+        } else {
+
+            ChatFragment newChatFragment = new ChatFragment();
+
+            /*
+
+            ArticleFragment newFragment = new ArticleFragment();
+            Bundle args = new Bundle();
+            args.putInt(ArticleFragment.ARG_POSITION, position);
+            newFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.fragment_container, newFragment);
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();*/
+        }
+/*
+        if (chatFragment1 != null) {
+            chatFragment1.changeDataPropriete(bundle);
+        } else {
+            chatFragment.changeDataPropriete(bundle);
+        }*/
     }
 
     @Override

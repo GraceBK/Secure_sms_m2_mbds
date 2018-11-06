@@ -29,14 +29,13 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Personnes;
-import fr.mbds.securesms.iCallable;
 import fr.mbds.securesms.view_model.PersonnesViewModel;
 
 public class ListContactFragment extends Fragment {
 
-    iCallable callback;
+    InterfaceClickListener callback;
 
-    public interface iCallable {
+    public interface InterfaceClickListener {
 
         void transferData(Bundle bundle);
 
@@ -69,8 +68,8 @@ public class ListContactFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof iCallable) {
-            callback = (iCallable) context;
+        if (context instanceof InterfaceClickListener) {
+            callback = (InterfaceClickListener) context;
         } else {
             throw new ClassCastException(context.toString() + "must implement callback");
         }
@@ -167,6 +166,10 @@ public class ListContactFragment extends Fragment {
     }
 
     public void sendDataToChatFragment(Bundle bundle) {
+        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.e("AZERTY", "++++"+ args + "----"+callback+ "****"+bundle);
+        }*/
+//        Log.e("AZERTY", "++++"+ args + "----"+callback+ "****"+bundle);
         if (callback != null) {
             callback.transferData(bundle);
         }
