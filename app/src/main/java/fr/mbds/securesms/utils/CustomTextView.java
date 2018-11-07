@@ -12,7 +12,7 @@ public class CustomTextView extends AppCompatTextView {
 
     public CustomTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/Courgette-Regular.ttf"));
+        this.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/Orbitron-Bold.ttf"));
     }
 
     public CustomTextView(Context context, AttributeSet attrs, int defStyleAttr) {

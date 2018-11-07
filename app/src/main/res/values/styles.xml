@@ -9,14 +9,16 @@
     </style>
 
     <style name="CustomByGraceBK" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/white1</item>
+        <item name="colorPrimaryDark">@color/white1</item>
+        <item name="colorAccent">@color/blue1</item>
 
         <item name="android:statusBarColor">@null</item>
         <item name="android:windowTranslucentStatus">true</item>
 
         <item name="android:windowFullscreen">true</item>
+
+        <item name="android:windowBackground">@color/white1</item>
     </style>
 
     <style name="CustomByGraceBK.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
