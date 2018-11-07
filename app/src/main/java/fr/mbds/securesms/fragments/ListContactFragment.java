@@ -111,7 +111,17 @@ public class ListContactFragment extends Fragment {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP && motionEvent.getAction() != MotionEvent.ACTION_MOVE) {
+                long down = 0;
+                long diff = 0;
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    down = System.currentTimeMillis();
+                }
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    diff = System.currentTimeMillis() - down;
+                }
+                Log.e("test", ""+diff);
+
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
                     View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                     int pos = recyclerView.getChildAdapterPosition(child);
@@ -166,10 +176,6 @@ public class ListContactFragment extends Fragment {
     }
 
     public void sendDataToChatFragment(Bundle bundle) {
-        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.e("AZERTY", "++++"+ args + "----"+callback+ "****"+bundle);
-        }*/
-//        Log.e("AZERTY", "++++"+ args + "----"+callback+ "****"+bundle);
         if (callback != null) {
             callback.transferData(bundle);
         }
