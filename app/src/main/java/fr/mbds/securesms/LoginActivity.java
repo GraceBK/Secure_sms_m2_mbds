@@ -4,10 +4,24 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import fr.mbds.securesms.utils.MyURL;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,12 +43,45 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         if (!et_username.getText().toString().equals("") && !et_password.getText().toString().equals("")) {
             btn_login.setBackgroundColor(Color.GREEN);
-            Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(goToMain);
-            finish();
+            requestLogin(et_username.getText().toString(), et_password.getText().toString());
         } else {
             btn_login.setBackgroundColor(Color.RED);
         }
+    }
+
+
+    public void requestLogin(final String username, final String password) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("username", username);
+            jsonObject.put("password", password);
+        } catch (JSONException e) {
+            Log.e("ERROR JSONObject", jsonObject.toString());
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.SIGNIN.toString(), jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i("LOGIN", response.toString());
+                        // TODO : Save current state (is connect) in SharePreference
+                        Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(goToMain);
+                        finish();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
+                        //clearAllEditText();
+                        Log.e("ERROR LOGIN", error.toString());
+                    }
+                });
+        queue.add(objectRequest);
     }
 
     public void actionComposant() {

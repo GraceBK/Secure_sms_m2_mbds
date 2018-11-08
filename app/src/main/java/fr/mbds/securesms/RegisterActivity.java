@@ -72,6 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         Log.i("REGISTER", response.toString());
                         // TODO : Generer Private and Public key
+                        // TODO : Save current state (is connect) in SharePreference
                         Intent goToMain = new Intent(RegisterActivity.this, MainActivity.class);
                         startActivity(goToMain);
                         finish();
@@ -82,11 +83,10 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getApplicationContext(), "Contact existant", Toast.LENGTH_SHORT).show();
                         clearAllEditText();
-                        Log.i("ERROR REGISTER", error.toString());
+                        Log.e("ERROR REGISTER", error.toString());
                     }
                 });
         queue.add(objectRequest);
-        Log.e("REGISTER", ""+objectRequest.getUrl());
     }
 
     public void actionComposant() {
