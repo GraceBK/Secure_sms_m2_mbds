@@ -46,8 +46,14 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         int r = rand.nextInt(255);
         int g = rand.nextInt(255);
         int b = rand.nextInt(255);
+        int alpha = 70;
 
-        myViewHolder.thumbnail.setBackgroundColor(Color.rgb(r, g, b));
+        myViewHolder.thumbnail.setBackgroundColor(Color.argb(alpha, r, g, b));
+
+        alpha = 100;
+
+        myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, r, g, b));
+        myViewHolder.firstLetterName.setText(personnes.getUsername().substring(0, 1).toUpperCase());
     }
 
     @Override
@@ -67,6 +73,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         public TextView username;
         public TextView shortResume;
         public ImageView thumbnail;
+        public TextView firstLetterName;
 
         MyViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -74,6 +81,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
             linearLayout = itemView.findViewById(R.id.item_ll);
             username = itemView.findViewById(R.id.item_list_username);
             thumbnail = itemView.findViewById(R.id.item_list_img);
+            firstLetterName = itemView.findViewById(R.id.item_list_img_txt);
             //shortResume = itemView.findViewById(R.id.item_list_resume);
 
             /*linearLayout.setOnClickListener(new View.OnClickListener() {

@@ -16,14 +16,25 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/CustomByGraceBK.PopupOverlay" />
+            app:popupTheme="@style/CustomByGraceBK.PopupOverlay">
+
+            <fr.mbds.securesms.utils.CustomTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grayDark"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textAlignment="center"
+                android:text="Add Contact"/>
+
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_create_contact" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

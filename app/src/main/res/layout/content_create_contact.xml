@@ -15,14 +15,15 @@
         android:layout_margin="@dimen/fab_margin">
 
         <EditText
+            android:id="@+id/create_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"/>
+            android:hint="Username" />
 
-        <EditText
+        <!--EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Mail"/>
+            android:hint="Mail"/-->
 
     </LinearLayout>
 

@@ -8,6 +8,4 @@
 
     <include layout="@layout/content_chat" />
 
-    <!-- TODO: Update blank fragment layout -->
-
 </FrameLayout>

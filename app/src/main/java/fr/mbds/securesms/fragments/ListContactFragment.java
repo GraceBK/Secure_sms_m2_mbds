@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -111,17 +112,23 @@ public class ListContactFragment extends Fragment {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                long down = 0;
+                /*long down = 0;
                 long diff = 0;
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     down = System.currentTimeMillis();
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     diff = System.currentTimeMillis() - down;
-                }
-                Log.e("test", ""+diff);
+                }*/
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                Log.e("test", "---->"+recyclerView.getScrollState());
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && recyclerView.getScrollState() == RecyclerView.SCROLL_AXIS_NONE) {
+                    Log.e("test", "---->");
+                    return true;
+                }
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
                     View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                     int pos = recyclerView.getChildAdapterPosition(child);
@@ -168,7 +175,7 @@ public class ListContactFragment extends Fragment {
             public void onClick(View view) {
                 Intent createContact = new Intent(getContext(), CreateContactActivity.class);
                 startActivity(createContact);
-                setData();
+                //setData();
             }
         });
 
@@ -190,7 +197,7 @@ public class ListContactFragment extends Fragment {
         Random rand = new Random();
 
         Personnes personnes = new Personnes();
-        personnes.setUsername("Grace BOUKOU " + rand.nextInt(50) + 1);
+        personnes.setUsername("BOUKOU " + rand.nextInt(50) + 1);
 
         new AsyncTask<Personnes, Void, Void>() {
             @Override
