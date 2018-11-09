@@ -66,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
             Log.e("ERROR JSONObject", jsonObject.toString());
         }
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.SIGNUP.toString(), jsonObject,
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.CREATE_USER.toString(), jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

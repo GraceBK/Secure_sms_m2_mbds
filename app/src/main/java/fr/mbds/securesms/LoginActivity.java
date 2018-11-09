@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.e("ERROR JSONObject", jsonObject.toString());
         }
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.SIGNIN.toString(), jsonObject,
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.LOGIN.toString(), jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

@@ -55,6 +55,9 @@ public class ListContactFragment extends Fragment {
     private AppDatabase db;
     PersonnesViewModel viewModel;
 
+    long down = 0;
+    long diff = 0;
+
 
     private Bundle args;
 
@@ -112,23 +115,21 @@ public class ListContactFragment extends Fragment {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                /*long down = 0;
-                long diff = 0;
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    down = System.currentTimeMillis();
-                }
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    diff = System.currentTimeMillis() - down;
-                }*/
-
-                Log.e("test", "---->"+recyclerView.getScrollState());
-
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && recyclerView.getScrollState() == RecyclerView.SCROLL_AXIS_NONE) {
-                    Log.e("test", "---->");
-                    return true;
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        down = System.currentTimeMillis();
+                        Log.e("CLICK DOWN", diff+" - "+down + " = " + (diff-down));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        diff = System.currentTimeMillis();
+                        Log.e("CLICK UP", diff+" - "+down + " = " + (diff-down));
+                        break;
                 }
 
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                Log.e("CLICK DIFF", diff+" - "+down + " = " + (diff-down));
+
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP && ((diff - down) <= 100)) {
 
                     View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
                     int pos = recyclerView.getChildAdapterPosition(child);

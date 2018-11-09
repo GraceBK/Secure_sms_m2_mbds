@@ -1,14 +1,34 @@
 package fr.mbds.securesms.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Map;
+
+import fr.mbds.securesms.LoginActivity;
+import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
+import fr.mbds.securesms.utils.MyURL;
 
 public class ChatFragment extends Fragment {
 
@@ -34,7 +54,38 @@ public class ChatFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             res.setText(args.getString("USERNAME"));
+            requestGetSMS();
         }
+    }
+
+    public void requestGetSMS() {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i("SMS", "---->"+response.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
+                        //clearAllEditText();
+                        Log.e("ERROR SMS", error.toString());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String> headers = SyncStateContract.Constants;
+
+                return super.getHeaders();
+            }
+        };
+        queue.add(objectRequest);
     }
 
     public void changeDataPropriete(Bundle bundle) {

@@ -2,8 +2,10 @@ package fr.mbds.securesms.utils;
 
 public enum MyURL {
 
-    SIGNUP ("/api/createUser"),
-    SIGNIN ("/api/login");
+    CREATE_USER ("/api/createUser"),
+    LOGIN ("/api/login"),
+    SEND_SMS ("/api/sendMsg"),
+    GET_SMS ("/api/fetchMessages");
 
     private String url;
     private final String host = "http://baobab.tokidev.fr";
