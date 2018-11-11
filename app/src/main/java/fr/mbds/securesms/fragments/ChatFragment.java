@@ -1,8 +1,6 @@
 package fr.mbds.securesms.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -20,13 +18,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Map;
 
-import fr.mbds.securesms.LoginActivity;
-import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.utils.MyURL;
 

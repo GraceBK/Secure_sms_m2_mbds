@@ -118,43 +118,39 @@ public class ListContactFragment extends Fragment {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         down = System.currentTimeMillis();
-                        Log.e("CLICK DOWN", diff+" - "+down + " = " + (diff-down));
-                        break;
+                        // break;
                     case MotionEvent.ACTION_UP:
-                        diff = System.currentTimeMillis();
-                        Log.e("CLICK UP", diff+" - "+down + " = " + (diff-down));
-                        break;
-                }
+                        diff = System.currentTimeMillis() - down;
+                        if (diff <= 100) {
+                            Log.e("ttttttttt", "-----------"+diff);
 
-                Log.e("CLICK DIFF", diff+" - "+down + " = " + (diff-down));
-
-
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP && ((diff - down) <= 100)) {
-
-                    View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                    int pos = recyclerView.getChildAdapterPosition(child);
+                            View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+                            int pos = recyclerView.getChildAdapterPosition(child);
 
 
-                    try {
-                        args.putString("USERNAME", personnesList.get(pos).getUsername());
-                        // args.putString("RESUME", personnesList.get(pos).getResume());
-                        //fragment.setArguments(args);
+
+                            try {
+                                args.putString("USERNAME", personnesList.get(pos).getUsername());
+                                // args.putString("RESUME", personnesList.get(pos).getResume());
+                                //fragment.setArguments(args);
 
 
-                        int currentOrientation = getResources().getConfiguration().orientation;
-                        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                            // Je change le boolean
-                            setSwipe(true);
-                            click(swipe);
+                                int currentOrientation = getResources().getConfiguration().orientation;
+                                if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                                    // Je change le boolean
+                                    setSwipe(true);
+                                    click(swipe);
 
+                                }
+
+                                sendDataToChatFragment(args);
+                            } catch (Exception e) {
+                                // Log.e("ERROR", "No Element");
+                            }
                         }
-
-                        sendDataToChatFragment(args);
-                    } catch (Exception e) {
-                        // Log.e("ERROR", "No Element");
-                    }
-
+                        // break;
                 }
+
                     // return false;
                 return false;
             }

@@ -46,11 +46,11 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 //            Toast.makeText(this, ""+ savedInstanceState, Toast.LENGTH_SHORT).show();
         }
 
-        if (savedInstanceState == null) {
+        /*if (savedInstanceState == null) {
             ListContactFragment listContactFragment1 = new ListContactFragment();
             listContactFragment1.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction().add(fl_list.getId(), chatFragment);
-        }
+        }*/
 
         updateDisplay();
 
