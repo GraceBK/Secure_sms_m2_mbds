@@ -17,15 +17,18 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Random;
 
 import fr.mbds.securesms.CreateContactActivity;
+import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
@@ -110,92 +113,33 @@ public class ListContactFragment extends Fragment {
             }
         });
 
-
-        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), recyclerView, new ClickListener() {
             @Override
-            public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+            public void onClick(View view, int position) {
+                try {
+                    args.putString("USERNAME", personnesList.get(position).getUsername());
+                    // args.putString("RESUME", personnesList.get(pos).getResume());
+                    //fragment.setArguments(args);
 
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    down = System.currentTimeMillis();
-                }
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    diff = System.currentTimeMillis() - down;
-                    if (diff <= 100) {
-                        Log.e("ttttttttt", "-----------"+diff);
+                    int currentOrientation = getResources().getConfiguration().orientation;
+                    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                        // Je change le boolean
+                        setSwipe(true);
+                        click(swipe);
 
-                        View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                        int pos = recyclerView.getChildAdapterPosition(child);
-
-                        try {
-                            args.putString("USERNAME", personnesList.get(pos).getUsername());
-                            // args.putString("RESUME", personnesList.get(pos).getResume());
-                            //fragment.setArguments(args);
-
-                            int currentOrientation = getResources().getConfiguration().orientation;
-                            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                                // Je change le boolean
-                                setSwipe(true);
-                                click(swipe);
-
-                            }
-
-                            sendDataToChatFragment(args);
-                        } catch (Exception e) {
-                            // Log.e("ERROR", "No Element");
-                        }
                     }
+
+                    sendDataToChatFragment(args);
+                } catch (Exception e) {
+                    // Log.e("ERROR", "No Element");
                 }
-
-                /*switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        diff = System.currentTimeMillis() - down;
-                        if (diff <= 100) {
-                            Log.e("ttttttttt", "-----------"+diff);
-
-                            View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                            int pos = recyclerView.getChildAdapterPosition(child);
-
-
-
-                            try {
-                                args.putString("USERNAME", personnesList.get(pos).getUsername());
-                                // args.putString("RESUME", personnesList.get(pos).getResume());
-                                //fragment.setArguments(args);
-
-
-                                int currentOrientation = getResources().getConfiguration().orientation;
-                                if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                                    // Je change le boolean
-                                    setSwipe(true);
-                                    click(swipe);
-
-                                }
-
-                                sendDataToChatFragment(args);
-                            } catch (Exception e) {
-                                // Log.e("ERROR", "No Element");
-                            }
-                        }
-                        break;
-                }*/
-
-                    // return false;
-                return false;
             }
 
             @Override
-            public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-
+            public void onLongClick(View view, int position) {
+                Log.e("--------->", "LONG");
             }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean b) {
-
-            }
-        });
+        }));
 
         fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -254,5 +198,72 @@ public class ListContactFragment extends Fragment {
 
     public void setSwipe(boolean swipe) {
         this.swipe = swipe;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static interface ClickListener {
+        public void onClick(View view, int position);
+        public void onLongClick(View view, int position);
+    }
+
+
+
+    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private ClickListener clickListener;
+        private GestureDetector gestureDetector;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null && clickListener != null) {
+                        clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+            View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(motionEvent)) {
+                clickListener.onClick(child, recyclerView.getChildAdapterPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean b) {
+
+        }
     }
 }
