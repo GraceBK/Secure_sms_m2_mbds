@@ -115,10 +115,41 @@ public class ListContactFragment extends Fragment {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                switch (motionEvent.getAction()) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    down = System.currentTimeMillis();
+                }
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    diff = System.currentTimeMillis() - down;
+                    if (diff <= 100) {
+                        Log.e("ttttttttt", "-----------"+diff);
+
+                        View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+                        int pos = recyclerView.getChildAdapterPosition(child);
+
+                        try {
+                            args.putString("USERNAME", personnesList.get(pos).getUsername());
+                            // args.putString("RESUME", personnesList.get(pos).getResume());
+                            //fragment.setArguments(args);
+
+                            int currentOrientation = getResources().getConfiguration().orientation;
+                            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                                // Je change le boolean
+                                setSwipe(true);
+                                click(swipe);
+
+                            }
+
+                            sendDataToChatFragment(args);
+                        } catch (Exception e) {
+                            // Log.e("ERROR", "No Element");
+                        }
+                    }
+                }
+
+                /*switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        down = System.currentTimeMillis();
-                        // break;
+
+                        break;
                     case MotionEvent.ACTION_UP:
                         diff = System.currentTimeMillis() - down;
                         if (diff <= 100) {
@@ -148,8 +179,8 @@ public class ListContactFragment extends Fragment {
                                 // Log.e("ERROR", "No Element");
                             }
                         }
-                        // break;
-                }
+                        break;
+                }*/
 
                     // return false;
                 return false;

@@ -67,26 +67,30 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/show_author"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:textStyle="bold"
                     android:text="--> Message en claire"/>
 
-                <!--TextView
-                    android:id="@+id/show"
+                <TextView
+                    android:id="@+id/show_sms"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Chat" /-->
+                    android:text="Chat" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:textStyle="bold"
                     android:text="--> Message chiffre"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:text="Message en claire"/>
             </LinearLayout>
 

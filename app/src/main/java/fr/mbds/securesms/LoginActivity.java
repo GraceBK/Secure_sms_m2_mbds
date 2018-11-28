@@ -1,6 +1,9 @@
 package fr.mbds.securesms;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -66,7 +69,20 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        String access_token;
                         Log.i("LOGIN", response.toString());
+                        try {
+                            access_token = response.getString("access_token");
+                            Log.i("LOGIN", access_token);
+
+                            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.access_token), access_token);
+                            editor.apply();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         // TODO : Save current state (is connect) in SharePreference
                         Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(goToMain);
@@ -107,5 +123,7 @@ public class LoginActivity extends AppCompatActivity {
         et_password = findViewById(R.id.login_et_password);
         tv_create = findViewById(R.id.login_tv_create_account);
         btn_login = findViewById(R.id.login_btn_login);
+        et_username.setText("azerty");
+        et_password.setText("azerty");
     }
 }

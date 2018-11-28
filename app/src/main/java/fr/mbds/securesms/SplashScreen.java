@@ -20,18 +20,18 @@ public class SplashScreen extends AppCompatActivity {
         // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash_screen);
 
-        final SharedPreferences preferences = getSharedPreferences("LOGIN", MODE_PRIVATE);
+        /*final SharedPreferences preferences = getSharedPreferences("LOGIN", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.apply();
 
         Log.e("SPLASH", preferences.getString("ObjectId", "No ObjectID"));
-        Log.e("SPLASH", preferences.getBoolean("isLogin", false)+"");
+        Log.e("SPLASH", preferences.getBoolean("isLogin", false)+"");*/
 
         int SPLASH_TIME_OUT = 1000;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (preferences.getBoolean("isLogin", true)) {
+                if (/*preferences.getBoolean("isLogin", true)*/true) {
                     Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
                     startActivity(intent);
                     finish();

@@ -39,7 +39,9 @@
             android:id="@+id/list_contact_rc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/app_bar_loyout"/>
+            android:layout_below="@+id/app_bar_loyout"
+            android:paddingBottom="70dp"
+            android:clipToPadding="false"/>
 
         <!--LinearLayout
             android:id="@+id/list_contact_rcA"
@@ -70,7 +72,7 @@
             android:layout_margin="@dimen/fab_margin"
             android:layout_alignEnd="@+id/list_contact_rc"
             android:layout_alignParentBottom="true"
-            app:srcCompat="@drawable/ic_new_sms" />
+            app:srcCompat="@drawable/ic_person_add" />
 
     </RelativeLayout>
 

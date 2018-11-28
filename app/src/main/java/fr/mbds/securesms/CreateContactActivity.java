@@ -1,21 +1,17 @@
 package fr.mbds.securesms;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-
-import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Personnes;
-import fr.mbds.securesms.fragments.ChatFragment;
 
 public class CreateContactActivity extends AppCompatActivity {
 
@@ -34,7 +30,7 @@ public class CreateContactActivity extends AppCompatActivity {
 
         initView();
 
-        FloatingActionButton fab = findViewById(R.id.fab_create);
+        Button fab = findViewById(R.id.fab_create);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
