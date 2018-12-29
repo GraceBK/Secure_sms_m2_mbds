@@ -12,17 +12,26 @@ public class Message {
     public int uid;
 
     @ColumnInfo(name = "username")
-    private String username;
+    private String author;
 
     @ColumnInfo(name = "msg")
     private String message;
 
-    public String getUsername() {
-        return username;
+    @ColumnInfo(name = "date")
+    private String dateCreated;
+
+    @ColumnInfo(name = "read")
+    private boolean alreadyReturned;
+
+    @ColumnInfo(name = "sender")
+    private boolean currentUser;
+
+    public String getAuthor() {
+        return author;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getMessage() {
@@ -31,5 +40,29 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public boolean getAlreadyReturned() {
+        return alreadyReturned;
+    }
+
+    public void setAlreadyReturned(boolean alreadyReturned) {
+        this.alreadyReturned = alreadyReturned;
+    }
+
+    public boolean getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(boolean currentUser) {
+        this.currentUser = currentUser;
     }
 }

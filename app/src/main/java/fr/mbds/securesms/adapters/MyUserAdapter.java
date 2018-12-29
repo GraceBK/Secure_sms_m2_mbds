@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Random;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.db.room_db.Personnes;
@@ -40,26 +39,6 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
         Personnes personnes = personnesList.get(i);
         myViewHolder.username.setText(personnes.getUsername());
-        //myViewHolder.mail.setText(personnes.getMail());
-/*
-        Random rand = new Random();
-        int r = rand.nextInt(255);
-        int g = rand.nextInt(255);
-        int b = rand.nextInt(255);
-        int alpha = 70;
-
-        myViewHolder.thumbnail.setBackgroundColor(Color.argb(alpha, r, g, b));
-
-        alpha = 100;
-
-        myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, r, g, b));
-        myViewHolder.firstLetterName.setText(personnes.getUsername().substring(0, 1).toUpperCase());
-
-*/
-
-
-
-
 
         String[] color = personnes.getThumbnail().split("-");
         int alpha = 70;

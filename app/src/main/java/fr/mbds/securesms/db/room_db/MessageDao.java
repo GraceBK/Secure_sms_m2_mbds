@@ -15,4 +15,7 @@ public interface MessageDao {
     @Query("SELECT * FROM message WHERE username = :user")
     List<Message> getAllMsgByUser(String user);
 
+    @Query("SELECT * FROM message")
+    LiveData<List<Message>> getLiveDataAllMsg();
+
 }
