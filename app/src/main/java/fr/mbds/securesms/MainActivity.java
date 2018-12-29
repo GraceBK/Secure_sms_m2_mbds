@@ -1,17 +1,40 @@
 package fr.mbds.securesms;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
+import fr.mbds.securesms.db.room_db.Message;
+import fr.mbds.securesms.db.room_db.Personnes;
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
+import fr.mbds.securesms.utils.MyURL;
 
 public class MainActivity extends FragmentActivity implements ListContactFragment.InterfaceClickListener {
 
@@ -29,6 +52,101 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 
 
 
+    public void fetchSMS() {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        //Toast.makeText(getContext(), "GOOD "+response, Toast.LENGTH_SHORT).show();
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject sms = response.getJSONObject(i);
+                                int idMsg = sms.getInt("id");
+                                String author = sms.getString("author");
+                                String msg = sms.getString("msg");
+                                String dateCreated = sms.getString("dateCreated");
+                                boolean alreadyReturned = sms.getBoolean("alreadyReturned");
+                                boolean currentUser = false;
+                                Log.e("FETCH SMS", sms.getString("id")+ " ===== "+ author + "------"+msg+"++++"+dateCreated);
+
+                                saveNewContact(author);
+                                saveNewMsg(idMsg, author, msg, dateCreated, alreadyReturned, currentUser);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
+                        Log.e("ERROR SMS", error.toString());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                String auth = sharedPref.getString("access_token", "No Access token");
+                Log.e("--->", auth);
+
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer "+auth);
+                return headers;
+            }
+        };
+        queue.add(arrayRequest);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void saveNewContact(String username) {
+        Random rand = new Random();
+        int r = rand.nextInt(255);
+        int g = rand.nextInt(255);
+        int b = rand.nextInt(255);
+
+        Personnes personnes = new Personnes();
+        personnes.setUsername(username);
+        personnes.setThumbnail(r + "-" + g + "-" + b);
+
+        new AsyncTask<Personnes, Void, Void>() {
+            @Override
+            protected Void doInBackground(Personnes... personnes) {
+                for (Personnes personne : personnes) {
+                    db.personnesDao().insertPersonnes(personne);
+                }
+                return null;
+            }
+        }.execute(personnes);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void saveNewMsg(int id, String username, String body, String date, boolean alreadyReturned, boolean currentUser) {
+
+        Message message = new Message();
+        message.setId(id);
+        message.setAuthor(username);
+        message.setMessage(body);
+        message.setDateCreated(date);
+        message.setAlreadyReturned(alreadyReturned);
+        message.setCurrentUser(currentUser);
+
+        new AsyncTask<Message, Void, Void>() {
+            @Override
+            protected Void doInBackground(Message... messages) {
+                for (Message message1 : messages) {
+                    db.messageDao().insert(message1);
+                }
+                return null;
+            }
+        }.execute(message);
+    }
 
 
 
@@ -40,6 +158,8 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = AppDatabase.getDatabase(getApplicationContext());
+
+        fetchSMS();
 
         Log.i("MainActivity", "Chargement des messages");
         // TODO : Faire de tel sorte que le chargement de nouveau message ne puisse pas bloquer l'affichage

@@ -60,8 +60,6 @@ public class ListContactFragment extends Fragment {
 
     private boolean swipe = false;
 
-    //private Fragment fragment = new ChatFragment();
-
     public ListContactFragment() {
         args = new Bundle();
         Log.e("___________________", "COUCOU ListContactFragment");
@@ -136,7 +134,7 @@ public class ListContactFragment extends Fragment {
             @Override
             public void onLongClick(View view, int position) {
                 Log.e("--------->", "LONG");
-                setData();
+                //setData();
             }
         }));
 

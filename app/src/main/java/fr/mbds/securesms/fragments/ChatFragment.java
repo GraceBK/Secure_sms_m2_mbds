@@ -1,9 +1,12 @@
 package fr.mbds.securesms.fragments;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,13 +28,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
-import fr.mbds.securesms.models.Message;
+import fr.mbds.securesms.db.room_db.AppDatabase;
+import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.utils.MyURL;
+import fr.mbds.securesms.view_model.MessageViewModel;
+import fr.mbds.securesms.view_model.MyViewModelFactory;
 
 public class ChatFragment extends Fragment {
 
@@ -41,6 +48,10 @@ public class ChatFragment extends Fragment {
 
     private ListView listView;
     private MyMsgAdapter adapter;
+
+    private AppDatabase db;
+    MessageViewModel viewModel;
+    //PersonnesViewModel viewModel;
 
 /*
     public ChatFragment() {
@@ -56,9 +67,6 @@ public class ChatFragment extends Fragment {
         listView = rootView.findViewById(R.id.conversation);
 
         adapter = new MyMsgAdapter(getActivity().getApplicationContext());
-        adapter.add(new Message("Grace", "azertyuiop", false));
-        adapter.add(new Message("Grace", "azertyuiop", true));
-        adapter.add(new Message("Grace", "azertyuiop", false));
         listView.setAdapter(adapter);
 
         res = rootView.findViewById(R.id.show);
@@ -73,10 +81,25 @@ public class ChatFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Bundle args = getArguments();
+        db = AppDatabase.getDatabase(getActivity().getApplicationContext());
+
+        viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), Objects.requireNonNull(args).getString("USERNAME"))).get(MessageViewModel.class);
+        viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
+            @Override
+            public void onChanged(@Nullable List<Message> messages) {
+                adapter.addManyMassage(messages);
+            }
+        });
+
+
         if (args != null) {
             res.setText(args.getString("USERNAME"));
             requestGetSMS();
         }
+    }
+
+    public void requestGetLocalSMS() {
+
     }
 
     public void requestGetSMS() {
@@ -94,13 +117,15 @@ public class ChatFragment extends Fragment {
                                 String author = sms.getString("author");
                                 String msg = sms.getString("msg");
                                 String dateCreated = sms.getString("dateCreated");
+                                Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
+
 
 //                                resAuthor.append(author);
 //                                resAuthor.append("\n\n");
                                 resSms.append("Author : "+author+"\n"+"message : "+msg);
                                 resSms.append("\n\n");
 
-                                adapter.add(new Message(author, msg, true));
+                                //adapter.add(new Message(author, msg, true));
 
                             }
                         } catch (JSONException e) {

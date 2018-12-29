@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.mbds.securesms.R;
-import fr.mbds.securesms.models.Message;
+import fr.mbds.securesms.db.room_db.Message;
 
 public class MyMsgAdapter extends BaseAdapter {
 
@@ -25,6 +25,11 @@ public class MyMsgAdapter extends BaseAdapter {
 
     public void add(Message message) {
         this.messages.add(message);
+        notifyDataSetChanged();
+    }
+
+    public void addManyMassage(List<Message> messages) {
+        this.messages = messages;
         notifyDataSetChanged();
     }
 
@@ -53,13 +58,13 @@ public class MyMsgAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.item_my_sms, null);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
             view.setTag(holder);
-            holder.messageBody.setText(message.getResume());
+            holder.messageBody.setText(message.getMessage());
         } else {
             view = inflater.inflate(R.layout.item_their_sms, null);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
             view.setTag(holder);
 
-            holder.messageBody.setText(message.getResume());
+            holder.messageBody.setText(message.getMessage());
         }
 
         return view;

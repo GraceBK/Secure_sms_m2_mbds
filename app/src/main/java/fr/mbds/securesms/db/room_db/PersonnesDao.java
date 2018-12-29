@@ -6,11 +6,21 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
 @Dao
 public interface PersonnesDao {
+
+    @Insert
+    void insert(Personnes... personnes);
+
+    @Update
+    void update(Personnes... personnes);
+
+    @Delete
+    void delete(Personnes... personnes);
 
     @Query("SELECT * FROM personnes")
     List<Personnes> getAllPersonnes();
@@ -20,8 +30,5 @@ public interface PersonnesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertPersonnes(Personnes... personnes);
-
-    @Delete
-    void deletePersonnes(Personnes... personnes);
 
 }

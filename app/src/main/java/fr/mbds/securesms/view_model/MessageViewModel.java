@@ -14,11 +14,12 @@ public class MessageViewModel extends AndroidViewModel {
 
     private LiveData<List<Message>> messageList;
 
-    public MessageViewModel(@NonNull Application application) {
+    public MessageViewModel(@NonNull Application application, final String username) {
         super(application);
 
         AppDatabase db = AppDatabase.getDatabase(this.getApplication());
-        messageList = db.messageDao().getLiveDataAllMsg();
+        //messageList = db.messageDao().getLiveDataAllMsg();
+        messageList = db.messageDao().loadMessageForMsgUser(username);
     }
 
     public LiveData<List<Message>> getMessageList() {
