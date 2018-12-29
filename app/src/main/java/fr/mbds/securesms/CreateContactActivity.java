@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.Random;
+
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Personnes;
 
@@ -48,8 +50,14 @@ public class CreateContactActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     private void createData(String username) {
+        Random rand = new Random();
+        int r = rand.nextInt(255);
+        int g = rand.nextInt(255);
+        int b = rand.nextInt(255);
+
         Personnes personnes = new Personnes();
         personnes.setUsername(username);
+        personnes.setThumbnail(r + "-" + g + "-" + b);
 
         new AsyncTask<Personnes, Void, Void>() {
             @Override

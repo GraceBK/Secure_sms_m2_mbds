@@ -1,22 +1,45 @@
 package fr.mbds.securesms;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+
+import fr.mbds.securesms.db.room_db.AppDatabase;
+import fr.mbds.securesms.db.room_db.Personnes;
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
+import fr.mbds.securesms.utils.MyURL;
 
 public class MainActivity extends FragmentActivity implements ListContactFragment.InterfaceClickListener {
 
 
+    private AppDatabase db;
 
     FrameLayout fl_list;
     FrameLayout fl_chat;
@@ -26,9 +49,25 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 
     boolean a = true;
 
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        Log.i("MainActivity", "Chargement des messages");
+        // TODO : Faire de tel sorte que le chargement de nouveau message ne puisse pas bloquer l'affichage
+        // l'idee serait d'utiliser des AsyncTask
+
         // Get intent, action and MIME type
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -75,6 +114,20 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
         fragmentTransaction.commit();
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //updateDisplay();
+        getSupportFragmentManager().beginTransaction().detach(listContactFragment).attach(listContactFragment).commit();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e("____________________", "TESTER");
+        getSupportFragmentManager().beginTransaction().detach(listContactFragment).attach(listContactFragment).commit();
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

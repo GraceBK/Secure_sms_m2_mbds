@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,13 +21,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 import java.util.Random;
 
 import fr.mbds.securesms.CreateContactActivity;
-import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
@@ -58,9 +55,6 @@ public class ListContactFragment extends Fragment {
     private AppDatabase db;
     PersonnesViewModel viewModel;
 
-    long down = 0;
-    long diff = 0;
-
 
     private Bundle args;
 
@@ -70,6 +64,7 @@ public class ListContactFragment extends Fragment {
 
     public ListContactFragment() {
         args = new Bundle();
+        Log.e("___________________", "COUCOU ListContactFragment");
     }
 
     @Override
@@ -77,6 +72,7 @@ public class ListContactFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof InterfaceClickListener) {
             callback = (InterfaceClickListener) context;
+            Log.e("___________________", "COUCOU onAttach"+context);
         } else {
             throw new ClassCastException(context.toString() + "must implement callback");
         }
@@ -87,6 +83,7 @@ public class ListContactFragment extends Fragment {
         super.onDetach();
         callback = null;
     }*/
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -103,7 +100,7 @@ public class ListContactFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
-
+        Log.e("___________________", "COUCOU onCreateView");
 
         viewModel = ViewModelProviders.of(this).get(PersonnesViewModel.class);
         viewModel.getPersonneList().observe(this, new Observer<List<Personnes>>() {
@@ -118,6 +115,7 @@ public class ListContactFragment extends Fragment {
             public void onClick(View view, int position) {
                 try {
                     args.putString("USERNAME", personnesList.get(position).getUsername());
+                    args.putString("MESSAGES", personnesList.get(position).getUsername());
                     // args.putString("RESUME", personnesList.get(pos).getResume());
                     //fragment.setArguments(args);
 
@@ -138,6 +136,7 @@ public class ListContactFragment extends Fragment {
             @Override
             public void onLongClick(View view, int position) {
                 Log.e("--------->", "LONG");
+                setData();
             }
         }));
 
@@ -180,6 +179,17 @@ public class ListContactFragment extends Fragment {
                 return null;
             }
         }.execute(personnes);
+    }
+
+    private void delete(String username) {
+        new AsyncTask<Personnes, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Personnes... personnes) {
+
+                return null;
+            }
+        };
     }
 
     @Override

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.mbds.securesms">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,7 +15,6 @@
             android:name=".SplashScreen"
             android:screenOrientation="portrait"
             android:theme="@style/CustomByGraceBK">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,11 +24,14 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/CustomByGraceBK">
-            <!--intent-filter>
+
+            <!--
+            intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter-->
+            </intent-filter
+            -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -49,7 +51,14 @@
         <activity
             android:name=".CreateContactActivity"
             android:label="@string/title_activity_create_contact"
-            android:theme="@style/CustomByGraceBK"></activity>
+            android:theme="@style/CustomByGraceBK" />
+        <!--activity android:name=".SMARTActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-->
     </application>
 
 </manifest>

@@ -41,7 +41,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         Personnes personnes = personnesList.get(i);
         myViewHolder.username.setText(personnes.getUsername());
         //myViewHolder.mail.setText(personnes.getMail());
-
+/*
         Random rand = new Random();
         int r = rand.nextInt(255);
         int g = rand.nextInt(255);
@@ -54,6 +54,21 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
 
         myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, r, g, b));
         myViewHolder.firstLetterName.setText(personnes.getUsername().substring(0, 1).toUpperCase());
+
+*/
+
+
+
+
+
+        String[] color = personnes.getThumbnail().split("-");
+        int alpha = 70;
+
+        myViewHolder.thumbnail.setBackgroundColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
+        alpha = 100;
+        myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
+        myViewHolder.firstLetterName.setText(personnes.getUsername().substring(0, 1).toUpperCase());
+
     }
 
     @Override

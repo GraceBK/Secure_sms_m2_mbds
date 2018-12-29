@@ -6,7 +6,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(indices = {@Index(value = "username", unique = true)})
-public class Personnes {
+public class Message {
 
     @PrimaryKey(autoGenerate = true)
     public int uid;
@@ -14,12 +14,8 @@ public class Personnes {
     @ColumnInfo(name = "username")
     private String username;
 
-    @ColumnInfo(name = "mail")
-    private String mail;
-
-    @ColumnInfo(name = "picture")
-    private String thumbnail;
-
+    @ColumnInfo(name = "msg")
+    private String message;
 
     public String getUsername() {
         return username;
@@ -29,19 +25,11 @@ public class Personnes {
         this.username = username;
     }
 
-    public String getMail() {
-        return mail;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
