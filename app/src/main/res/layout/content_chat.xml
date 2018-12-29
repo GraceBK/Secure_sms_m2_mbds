@@ -36,6 +36,7 @@
 
 
         <LinearLayout
+            android:id="@+id/layout_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -43,6 +44,7 @@
             android:weightSum="12"
             android:padding="5dp">
 
+            <!-- Si pas de message -->
             <LinearLayout
                 android:id="@+id/chat_ll_empty"
                 android:layout_width="match_parent"
@@ -59,40 +61,73 @@
                     android:textAlignment="center"
                     android:text="Empty"/>
 
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SEND KEY"/>
+
             </LinearLayout>
 
+            <!-- message -->
             <LinearLayout
                 android:id="@+id/chat_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
-                <TextView
-                    android:id="@+id/show_author"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:textStyle="bold"
-                    android:text="--> Message en claire"/>
 
                 <TextView
                     android:id="@+id/show_sms"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:text="Chat" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:textStyle="bold"
-                    android:text="--> Message chiffre"/>
+                <!-- TODO modifier la taille -->
 
-                <TextView
+                <ListView
+                    android:id="@+id/conversation"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:text="Message en claire"/>
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:paddingBottom="70dp"
+                    android:divider="@null"/>
+
             </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_edt_sms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@drawable/border_edit_msg"
+            android:orientation="horizontal">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="Saisir le message"
+                android:inputType="textMultiLine"
+                android:paddingTop="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="10dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="0"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="SEND" />
 
         </LinearLayout>
 

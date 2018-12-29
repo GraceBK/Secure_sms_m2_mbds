@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +28,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import fr.mbds.securesms.R;
+import fr.mbds.securesms.adapters.MyMsgAdapter;
+import fr.mbds.securesms.models.Message;
 import fr.mbds.securesms.utils.MyURL;
 
 public class ChatFragment extends Fragment {
@@ -39,6 +44,10 @@ public class ChatFragment extends Fragment {
     private TextView res;
     private TextView resAuthor;
     private TextView resSms;
+
+    private ListView listView;
+    private MyMsgAdapter adapter;
+
 /*
     public ChatFragment() {
         // Required empty public constructor
@@ -50,9 +59,17 @@ public class ChatFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
+        listView = rootView.findViewById(R.id.conversation);
+
+        adapter = new MyMsgAdapter(getActivity().getApplicationContext());
+        adapter.add(new Message("Grace", "azertyuiop", false));
+        adapter.add(new Message("Grace", "azertyuiop", true));
+        adapter.add(new Message("Grace", "azertyuiop", false));
+        listView.setAdapter(adapter);
+
         res = rootView.findViewById(R.id.show);
-        resAuthor = rootView.findViewById(R.id.show_author);
-        resAuthor.setText("");
+        //resAuthor = rootView.findViewById(R.id.show_author);
+//        resAuthor.setText("");
         resSms = rootView.findViewById(R.id.show_sms);
         resSms.setText("");
         return rootView;
@@ -84,10 +101,12 @@ public class ChatFragment extends Fragment {
                                 String msg = sms.getString("msg");
                                 String dateCreated = sms.getString("dateCreated");
 
-                                resAuthor.append(author);
-                                resAuthor.append("\n\n");
+//                                resAuthor.append(author);
+//                                resAuthor.append("\n\n");
                                 resSms.append("Author : "+author+"\n"+"message : "+msg);
                                 resSms.append("\n\n");
+
+                                adapter.add(new Message(author, msg, true));
 
                             }
                         } catch (JSONException e) {
