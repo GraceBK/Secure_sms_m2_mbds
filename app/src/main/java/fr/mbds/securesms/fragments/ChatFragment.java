@@ -1,9 +1,11 @@
 package fr.mbds.securesms.fragments;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,15 +31,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
+import fr.mbds.securesms.db.room_db.Personnes;
 import fr.mbds.securesms.utils.MyURL;
 import fr.mbds.securesms.view_model.MessageViewModel;
 import fr.mbds.securesms.view_model.MyViewModelFactory;
@@ -43,12 +53,14 @@ import fr.mbds.securesms.view_model.MyViewModelFactory;
 public class ChatFragment extends Fragment {
 
     private TextView res;
-    private TextView resAuthor;
     private TextView resSms;
+    private EditText editSms;
+    private Button send;
 
     private ListView listView;
     private MyMsgAdapter adapter;
 
+    private String lastId;
     private AppDatabase db;
     MessageViewModel viewModel;
     //PersonnesViewModel viewModel;
@@ -64,6 +76,9 @@ public class ChatFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
+        editSms = rootView.findViewById(R.id.edt_msg);
+        send = rootView.findViewById(R.id.btn_send_msg);
+
         listView = rootView.findViewById(R.id.conversation);
 
         adapter = new MyMsgAdapter(getActivity().getApplicationContext());
@@ -74,28 +89,89 @@ public class ChatFragment extends Fragment {
 //        resAuthor.setText("");
         resSms = rootView.findViewById(R.id.show_sms);
         resSms.setText("");
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMsg();
+            }
+        });
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Bundle args = getArguments();
+        final Bundle args = getArguments();
         db = AppDatabase.getDatabase(getActivity().getApplicationContext());
+        lastId = "";
 
-        viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), Objects.requireNonNull(args).getString("USERNAME"))).get(MessageViewModel.class);
-        viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
-            @Override
-            public void onChanged(@Nullable List<Message> messages) {
-                adapter.addManyMassage(messages);
-            }
-        });
+        try {
+            viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), Objects.requireNonNull(args).getString("USERNAME"))).get(MessageViewModel.class);
+            viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
+                @Override
+                public void onChanged(@Nullable List<Message> messages) {
+                    adapter.addManyMassage(messages);
+                    assert messages != null;
+                    int nb = adapter.getCount() - 1;
+                    if (nb > 0) {
+                        lastId = messages.get(nb).getId() + "_" + Objects.requireNonNull(args).getString("USERNAME");
+                    }
+
+                    //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (Exception e) {
+            Log.e("", ""+e);
+        }
 
 
         if (args != null) {
             res.setText(args.getString("USERNAME"));
             requestGetSMS();
         }
+    }
+
+    public void sendMsg() {
+        if (!Objects.equals(editSms.getText().toString(), "")) {
+            /*
+              Sauvegarde Local
+             */
+            if (!Objects.equals(res.getText().toString(), "") && !Objects.equals(lastId, "")) {
+                saveLocalNewMsg(lastId, res.getText().toString(), editSms.getText().toString(), false, true);
+            }
+
+            // TODO : send
+            editSms.setText("");
+        } else {
+            Toast.makeText(getContext(), "Message vide", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void saveLocalNewMsg(String id, String username, String body, boolean alreadyReturned, boolean currentUser) {
+
+        @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String currentDate = dateFormat.format(new Date());
+
+
+        Message message = new Message();
+        message.setId(id);
+        message.setAuthor(username);
+        message.setMessage(body);
+        message.setDateCreated(currentDate);
+        message.setAlreadyReturned(alreadyReturned);
+        message.setCurrentUser(currentUser);
+
+        new AsyncTask<Message, Void, Void>() {
+            @Override
+            protected Void doInBackground(Message... messages) {
+                for (Message message1 : messages) {
+                    db.messageDao().insert(message1);
+                }
+                return null;
+            }
+        }.execute(message);
     }
 
     public void requestGetLocalSMS() {

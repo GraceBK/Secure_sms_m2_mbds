@@ -18,7 +18,7 @@ public class Message {
     public int uid;
 
     @ColumnInfo(name = "id_msg")
-    private int id;
+    private String id;
 
     @ColumnInfo(name = "username")
     private String author;
@@ -42,11 +42,11 @@ public class Message {
     private boolean send;
 
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

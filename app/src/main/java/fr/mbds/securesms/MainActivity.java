@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
                         try {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject sms = response.getJSONObject(i);
-                                int idMsg = sms.getInt("id");
+                                String idMsg = sms.getString("id");
                                 String author = sms.getString("author");
                                 String msg = sms.getString("msg");
                                 String dateCreated = sms.getString("dateCreated");
@@ -127,7 +127,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void saveNewMsg(int id, String username, String body, String date, boolean alreadyReturned, boolean currentUser) {
+    private void saveNewMsg(String id, String username, String body, String date, boolean alreadyReturned, boolean currentUser) {
 
         Message message = new Message();
         message.setId(id);

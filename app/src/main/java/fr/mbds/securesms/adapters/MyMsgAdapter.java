@@ -2,6 +2,7 @@ package fr.mbds.securesms.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,14 +58,19 @@ public class MyMsgAdapter extends BaseAdapter {
         if (message.isCurrentUser()) {
             view = inflater.inflate(R.layout.item_my_sms, null);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
+            holder.messageDate = view.findViewById(R.id.item_msg_date);
             view.setTag(holder);
             holder.messageBody.setText(message.getMessage());
+            holder.messageDate.setText(message.getDateCreated());
         } else {
             view = inflater.inflate(R.layout.item_their_sms, null);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
+            holder.messageDate = view.findViewById(R.id.item_msg_date);
             view.setTag(holder);
 
             holder.messageBody.setText(message.getMessage());
+            holder.messageDate.setText(message.getDateCreated());
+
         }
 
         return view;
@@ -74,5 +80,6 @@ public class MyMsgAdapter extends BaseAdapter {
     class MessageViewHolder {
         public TextView username;
         public TextView messageBody;
+        public TextView messageDate;
     }
 }

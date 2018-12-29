@@ -7,6 +7,11 @@ import android.support.annotation.NonNull;
 
 /**
  * https://stackoverflow.com/questions/46283981/android-viewmodel-additional-arguments
+ *
+ *
+ *
+ *
+ * https://medium.com/google-developer-experts/viewmodels-under-the-hood-f8e286c4cc72
  */
 public class MyViewModelFactory implements ViewModelProvider.Factory {
 

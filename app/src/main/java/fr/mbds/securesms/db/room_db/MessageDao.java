@@ -31,7 +31,7 @@ public interface MessageDao {
     @Query("SELECT * FROM message ORDER BY date DESC")
     LiveData<List<Message>> getLiveDataAllMsg();
 
-    @Query("SELECT * FROM message WHERE username = :user")
+    @Query("SELECT * FROM message WHERE username = :user ORDER BY date(date)")
     LiveData<List<Message>> loadMessageForMsgUser(String user);
 
 }

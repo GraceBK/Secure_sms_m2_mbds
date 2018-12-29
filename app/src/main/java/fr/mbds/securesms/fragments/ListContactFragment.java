@@ -135,6 +135,8 @@ public class ListContactFragment extends Fragment {
             public void onLongClick(View view, int position) {
                 Log.e("--------->", "LONG");
                 //setData();
+                // TODO : Send public Key
+
             }
         }));
 
