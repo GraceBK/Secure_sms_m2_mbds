@@ -11,27 +11,27 @@ import android.arch.persistence.room.Update;
 import java.util.List;
 
 @Dao
-public interface PersonnesDao {
+public interface UserDao {
 
     @Insert
-    void insert(Personnes... personnes);
+    void insert(User... users);
 
     @Update
-    void update(Personnes... personnes);
+    void update(User... users);
 
     @Delete
-    void delete(Personnes... personnes);
+    void delete(User... users);
 
-    @Query("SELECT * FROM personnes")
-    List<Personnes> getAllPersonnes();
+    @Query("SELECT * FROM User")
+    List<User> getAllPersonnes();
 
-    @Query("SELECT * FROM personnes")
-    LiveData<List<Personnes>> getAll();
+    @Query("SELECT * FROM User")
+    LiveData<List<User>> getAll();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertPersonnes(Personnes... personnes);
+    void insertPersonnes(User... users);
 
-    @Query("DELETE FROM personnes")
+    @Query("DELETE FROM User")
     void delete();
 
 }

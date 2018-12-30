@@ -6,7 +6,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(indices = {@Index(value = "username", unique = true)})
-public class Personnes {
+public class User {
 
     @PrimaryKey(autoGenerate = true)
     public int uid;
@@ -19,6 +19,9 @@ public class Personnes {
 
     @ColumnInfo(name = "picture")
     private String thumbnail;
+
+    @ColumnInfo(name = "indexToPubKey")
+    private String idPubKey = "VIDE";
 
 
     public String getUsername() {
@@ -43,5 +46,13 @@ public class Personnes {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getIdPubKey() {
+        return idPubKey;
+    }
+
+    public void setIdPubKey(String idPubKey) {
+        this.idPubKey = idPubKey;
     }
 }

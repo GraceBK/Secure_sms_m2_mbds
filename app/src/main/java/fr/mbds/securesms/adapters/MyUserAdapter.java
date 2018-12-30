@@ -13,14 +13,14 @@ import android.widget.TextView;
 import java.util.List;
 
 import fr.mbds.securesms.R;
-import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.db.room_db.User;
 
 public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHolder> {
 
-    private List<Personnes> personnesList;
+    private List<User> userList;
 
-    public MyUserAdapter(List<Personnes> personnesList) {
-        this.personnesList = personnesList;
+    public MyUserAdapter(List<User> userList) {
+        this.userList = userList;
     }
 
     @NonNull
@@ -37,27 +37,27 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
      */
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-        Personnes personnes = personnesList.get(i);
-        myViewHolder.username.setText(personnes.getUsername());
+        User user = userList.get(i);
+        myViewHolder.username.setText(user.getUsername());
 
-        String[] color = personnes.getThumbnail().split("-");
+        String[] color = user.getThumbnail().split("-");
         int alpha = 70;
 
         myViewHolder.thumbnail.setBackgroundColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
         alpha = 100;
         myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
-        myViewHolder.firstLetterName.setText(personnes.getUsername().substring(0, 1).toUpperCase());
+        myViewHolder.firstLetterName.setText(user.getUsername().substring(0, 1).toUpperCase());
 
     }
 
     @Override
     public int getItemCount() {
-        return personnesList.size();
+        return userList.size();
     }
 
 
-    public void updatePersonneList(List<Personnes> personnes) {
-        this.personnesList = personnes;
+    public void updatePersonneList(List<User> personnes) {
+        this.userList = personnes;
         notifyDataSetChanged();
     }
 

@@ -26,7 +26,7 @@ import fr.mbds.securesms.CreateContactActivity;
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
-import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.db.room_db.User;
 import fr.mbds.securesms.view_model.PersonnesViewModel;
 
 public class ListContactFragment extends Fragment {
@@ -47,7 +47,7 @@ public class ListContactFragment extends Fragment {
     private RecyclerView recyclerView;
     private MyUserAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private List<Personnes> personnesList;
+    private List<User> userList;
 
     private AppDatabase db;
     PersonnesViewModel viewModel;
@@ -86,9 +86,9 @@ public class ListContactFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.list_contact_rc);
 
         db = AppDatabase.getDatabase(getActivity().getApplicationContext());
-        personnesList = db.personnesDao().getAllPersonnes();
+        userList = db.personnesDao().getAllPersonnes();
 
-        adapter = new MyUserAdapter(personnesList);
+        adapter = new MyUserAdapter(userList);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -96,9 +96,9 @@ public class ListContactFragment extends Fragment {
         Log.e("___________________", "COUCOU onCreateView");
 
         viewModel = ViewModelProviders.of(this).get(PersonnesViewModel.class);
-        viewModel.getPersonneList().observe(this, new Observer<List<Personnes>>() {
+        viewModel.getPersonneList().observe(this, new Observer<List<User>>() {
             @Override
-            public void onChanged(@Nullable List<Personnes> personnes) {
+            public void onChanged(@Nullable List<User> personnes) {
                 adapter.updatePersonneList(personnes);
             }
         });
@@ -107,9 +107,9 @@ public class ListContactFragment extends Fragment {
             @Override
             public void onClick(View view, int position) {
                 try {
-                    args.putString("USERNAME", personnesList.get(position).getUsername());
-                    args.putString("MESSAGES", personnesList.get(position).getUsername());
-                    // args.putString("RESUME", personnesList.get(pos).getResume());
+                    args.putString("USERNAME", userList.get(position).getUsername());
+                    args.putString("MESSAGES", userList.get(position).getUsername());
+                    // args.putString("RESUME", userList.get(pos).getResume());
                     //fragment.setArguments(args);
 
                     int currentOrientation = getResources().getConfiguration().orientation;

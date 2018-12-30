@@ -13,7 +13,7 @@ import android.widget.EditText;
 import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
-import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.db.room_db.User;
 
 public class CreateContactActivity extends AppCompatActivity {
 
@@ -55,19 +55,19 @@ public class CreateContactActivity extends AppCompatActivity {
         int g = rand.nextInt(255);
         int b = rand.nextInt(255);
 
-        Personnes personnes = new Personnes();
-        personnes.setUsername(username);
-        personnes.setThumbnail(r + "-" + g + "-" + b);
+        User user = new User();
+        user.setUsername(username);
+        user.setThumbnail(r + "-" + g + "-" + b);
 
-        new AsyncTask<Personnes, Void, Void>() {
+        new AsyncTask<User, Void, Void>() {
             @Override
-            protected Void doInBackground(Personnes... personnes) {
-                for (Personnes personne : personnes) {
+            protected Void doInBackground(User... personnes) {
+                for (User personne : personnes) {
                     db.personnesDao().insertPersonnes(personne);
                 }
                 return null;
             }
-        }.execute(personnes);
+        }.execute(user);
     }
 
     public void initView() {

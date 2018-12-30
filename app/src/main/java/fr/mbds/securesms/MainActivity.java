@@ -31,7 +31,7 @@ import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
-import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.db.room_db.User;
 import fr.mbds.securesms.fragments.ChatFragment;
 import fr.mbds.securesms.fragments.ListContactFragment;
 import fr.mbds.securesms.utils.MyURL;
@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
                                 String dateCreated = sms.getString("dateCreated");
                                 boolean alreadyReturned = sms.getBoolean("alreadyReturned");
                                 boolean currentUser = false;
-                                Log.e("FETCH SMS", sms.getString("id")+ " ===== "+ author + "------"+msg+"++++"+dateCreated);
+                                Log.i("[FETCH SMS]", sms.getString("id")+ " ===== "+ author + "------"+msg+"++++"+dateCreated);
 
                                 saveNewContact(author);
                                 saveNewMsg(idMsg, author, msg, dateCreated, alreadyReturned, currentUser);
@@ -85,16 +85,16 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getApplicationContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
-                        Log.e("ERROR SMS", error.toString());
+                        Log.e("[ERROR SMS]", error.toString());
                     }
-                })
+                }
+        )
         {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
-                String auth = sharedPref.getString("access_token", "No Access token");
-                Log.e("--->", auth);
+                String auth = sharedPref.getString(getString(R.string.access_token), "No Access token");
 
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", "Bearer "+auth);
@@ -111,19 +111,19 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
         int g = rand.nextInt(255);
         int b = rand.nextInt(255);
 
-        Personnes personnes = new Personnes();
-        personnes.setUsername(username);
-        personnes.setThumbnail(r + "-" + g + "-" + b);
+        User user = new User();
+        user.setUsername(username);
+        user.setThumbnail(r + "-" + g + "-" + b);
 
-        new AsyncTask<Personnes, Void, Void>() {
+        new AsyncTask<User, Void, Void>() {
             @Override
-            protected Void doInBackground(Personnes... personnes) {
-                for (Personnes personne : personnes) {
+            protected Void doInBackground(User... personnes) {
+                for (User personne : personnes) {
                     db.personnesDao().insertPersonnes(personne);
                 }
                 return null;
             }
-        }.execute(personnes);
+        }.execute(user);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -276,16 +276,6 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
                         // Hide the nav bar and status bar
                         // | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-
-    // Shows the system bars by removing all the flags
-    // except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
     @Override

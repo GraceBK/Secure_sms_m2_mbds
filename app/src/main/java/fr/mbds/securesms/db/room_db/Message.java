@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
-@Entity(foreignKeys = @ForeignKey(entity = Personnes.class,
+@Entity(foreignKeys = @ForeignKey(entity = User.class,
                            parentColumns = "uid",
                             childColumns = "userKey",
                                 onDelete = CASCADE),

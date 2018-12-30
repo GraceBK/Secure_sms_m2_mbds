@@ -8,11 +8,11 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
-import fr.mbds.securesms.db.room_db.Personnes;
+import fr.mbds.securesms.db.room_db.User;
 
 public class PersonnesViewModel extends AndroidViewModel {
 
-    private LiveData<List<Personnes>> personneList;
+    private LiveData<List<User>> personneList;
 
     public PersonnesViewModel(@NonNull Application application) {
         super(application);
@@ -21,7 +21,7 @@ public class PersonnesViewModel extends AndroidViewModel {
         personneList = db.personnesDao().getAll();
     }
 
-    public LiveData<List<Personnes>> getPersonneList() {
+    public LiveData<List<User>> getPersonneList() {
         return personneList;
     }
 }
