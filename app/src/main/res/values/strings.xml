@@ -9,7 +9,9 @@
     <string name="name">Name</string>
 
     <string name="pref_user">preference_user</string>
+    <string name="refresh_token">refresh_token</string>
     <string name="access_token">access_token</string>
+    <string name="expires_in">expires_in</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

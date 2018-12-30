@@ -31,4 +31,7 @@ public interface PersonnesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertPersonnes(Personnes... personnes);
 
+    @Query("DELETE FROM personnes")
+    void delete();
+
 }

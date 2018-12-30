@@ -34,4 +34,7 @@ public interface MessageDao {
     @Query("SELECT * FROM message WHERE username = :user ORDER BY date(date)")
     LiveData<List<Message>> loadMessageForMsgUser(String user);
 
+    @Query("DELETE FROM message")
+    void delete();
+
 }

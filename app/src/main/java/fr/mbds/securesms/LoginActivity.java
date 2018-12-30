@@ -45,10 +45,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login() {
         if (!et_username.getText().toString().equals("") && !et_password.getText().toString().equals("")) {
-            btn_login.setBackgroundColor(Color.GREEN);
+            //btn_login.setBackgroundColor(Color.GREEN);
             requestLogin(et_username.getText().toString(), et_password.getText().toString());
         } else {
-            btn_login.setBackgroundColor(Color.RED);
+            //btn_login.setBackgroundColor(Color.RED);
+            Toast.makeText(getApplicationContext(), "Champs vide", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -62,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
             jsonObject.put("username", username);
             jsonObject.put("password", password);
         } catch (JSONException e) {
-            Log.e("ERROR JSONObject", jsonObject.toString());
+            Log.e("[LOGIN JSONObject]", jsonObject.toString());
         }
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.LOGIN.toString(), jsonObject,
@@ -70,20 +71,23 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         String access_token;
-                        Log.i("LOGIN", response.toString());
+                        int expires_in;
+                        //Log.i("LOGIN", response.toString());
+                        Log.i("[LOGIN]", "ok");
                         try {
                             access_token = response.getString("access_token");
-                            Log.i("LOGIN", access_token);
+                            expires_in = response.getInt("expires_in");
 
                             SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
                             @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.access_token), access_token);
+                            editor.putInt(getString(R.string.expires_in), expires_in);
                             editor.apply();
+                            Log.i("[LOGIN]", "access token saving");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        // TODO : Save current state (is connect) in SharePreference
                         Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(goToMain);
                         finish();
@@ -92,9 +96,9 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Auth Failure Error", Toast.LENGTH_SHORT).show();
                         //clearAllEditText();
-                        Log.e("ERROR LOGIN", error.toString());
+                        Log.e("[LOGIN]", error.toString());
                     }
                 });
         queue.add(objectRequest);

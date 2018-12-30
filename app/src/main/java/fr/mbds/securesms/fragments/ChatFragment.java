@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -41,7 +43,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
+import fr.mbds.securesms.RegisterActivity;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
@@ -70,6 +74,7 @@ public class ChatFragment extends Fragment {
         // Required empty public constructor
     }
 */
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -116,6 +121,9 @@ public class ChatFragment extends Fragment {
                     int nb = adapter.getCount() - 1;
                     if (nb > 0) {
                         lastId = messages.get(nb).getId() + "_" + Objects.requireNonNull(args).getString("USERNAME");
+                    } else {
+                        // TODO : send public key
+                        lastId = "PUBLICKEY";
                     }
 
                     //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
@@ -137,14 +145,27 @@ public class ChatFragment extends Fragment {
             /*
               Sauvegarde Local
              */
-            if (!Objects.equals(res.getText().toString(), "") && !Objects.equals(lastId, "")) {
-                saveLocalNewMsg(lastId, res.getText().toString(), editSms.getText().toString(), false, true);
+            if (!Objects.equals(res.getText().toString(), "")) {
+
+
+                if (lastId.equals("PUBLICKEY")) {
+                    // Alice veut parler à Bob et qu’ils ne se sont jamais parlé
+                    requestCreateMsg(res.getText().toString(), "PING[|]" + "ma cle public");
+
+                } else {
+                    saveLocalNewMsg(lastId, res.getText().toString(), editSms.getText().toString(), false, true);
+
+                    // TODO : send server
+                    requestCreateMsg(res.getText().toString(), editSms.getText().toString());
+                }
+
+            } else {
+                Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }
 
-            // TODO : send
             editSms.setText("");
         } else {
-            Toast.makeText(getContext(), "Message vide", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Message vide " +res.getText().toString(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -174,8 +195,50 @@ public class ChatFragment extends Fragment {
         }.execute(message);
     }
 
-    public void requestGetLocalSMS() {
+    /**
+     * Function to send SMS
+     * @param receiver
+     * @param message
+     */
+    public void requestCreateMsg(final String receiver, final String message) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getContext());
 
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("receiver", receiver);
+            jsonObject.put("message", message);
+        } catch (JSONException e) {
+            Log.e("ERROR JSONObject", jsonObject.toString());
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.SEND_SMS.toString(), jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i("SEND OK", response.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Message pas envoye", Toast.LENGTH_SHORT).show();
+                        Log.e("ERROR SEND", error.toString());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                String auth = sharedPref.getString("access_token", "No Access token");
+
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer "+auth);
+                return headers;
+            }
+        };
+        queue.add(objectRequest);
     }
 
     public void requestGetSMS() {
@@ -248,8 +311,41 @@ public class ChatFragment extends Fragment {
         queue.add(arrayRequest);
     }
 
-    public void changeDataPropriete(Bundle bundle) {
+    public void changeDataPropriete(final Bundle bundle) {
         res.setText(bundle.getString("USERNAME"));
+        if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
+            Log.e("MESSAGES", bundle.getString("USERNAME")+"*****"+bundle.getString("MESSAGES"));
+            try {
+                //Log.w("MESSAGES", "*****"+db.messageDao().loadMessageForMsgUser(bundle.getString("USERNAME")));
+                viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), bundle.getString("USERNAME"))).get(MessageViewModel.class);
+                viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Message> messages) {
+                        adapter.clear();
+                        adapter.notifyDataSetChanged();
+                        adapter.addManyMassage(messages);
+                        for (Message a : messages) {
+                            Log.w("MESSAGES", "*****"+a.getMessage());
+                        }
+                        adapter.addManyMassage(messages);
+                        assert messages != null;
+                        int nb = adapter.getCount() - 1;
+                        if (nb > 0) {
+                            lastId = messages.get(nb).getId() + "_" + bundle.getString("USERNAME");
+
+                        } else {
+                            // TODO : send public key
+                            lastId = "PUBLICKEY";
+                        }
+
+                        //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("", ""+e);
+            }
+            adapter.notifyDataSetInvalidated();
+        }
     }
 
 }

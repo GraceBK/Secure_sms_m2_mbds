@@ -1,12 +1,10 @@
 package fr.mbds.securesms.fragments;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
-import java.util.Random;
 
 import fr.mbds.securesms.CreateContactActivity;
 import fr.mbds.securesms.R;
@@ -62,7 +59,6 @@ public class ListContactFragment extends Fragment {
 
     public ListContactFragment() {
         args = new Bundle();
-        Log.e("___________________", "COUCOU ListContactFragment");
     }
 
     @Override
@@ -70,7 +66,6 @@ public class ListContactFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof InterfaceClickListener) {
             callback = (InterfaceClickListener) context;
-            Log.e("___________________", "COUCOU onAttach"+context);
         } else {
             throw new ClassCastException(context.toString() + "must implement callback");
         }
@@ -123,7 +118,10 @@ public class ListContactFragment extends Fragment {
                         setSwipe(true);
                         click(swipe);
 
-                    }
+                    }/* else {
+                        setSwipe(true);
+                        click(swipe);
+                    }*/
 
                     sendDataToChatFragment(args);
                 } catch (Exception e) {
@@ -161,35 +159,6 @@ public class ListContactFragment extends Fragment {
 
     public void click(boolean click) {
         callback.clickItem(click);
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private void setData() {
-        Random rand = new Random();
-
-        Personnes personnes = new Personnes();
-        personnes.setUsername("BOUKOU " + rand.nextInt(50) + 1);
-
-        new AsyncTask<Personnes, Void, Void>() {
-            @Override
-            protected Void doInBackground(Personnes... personnes) {
-                for (Personnes personne : personnes) {
-                    db.personnesDao().insertPersonnes(personne);
-                }
-                return null;
-            }
-        }.execute(personnes);
-    }
-
-    private void delete(String username) {
-        new AsyncTask<Personnes, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Personnes... personnes) {
-
-                return null;
-            }
-        };
     }
 
     @Override

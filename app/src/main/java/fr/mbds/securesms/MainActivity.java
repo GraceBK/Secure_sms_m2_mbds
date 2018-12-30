@@ -141,7 +141,12 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
             @Override
             protected Void doInBackground(Message... messages) {
                 for (Message message1 : messages) {
-                    db.messageDao().insert(message1);
+                    if (message1.getMessage().contains("PING[|]")) {
+                        // TODO save Cle
+                        break;
+                    } else {
+                        db.messageDao().insert(message1);
+                    }
                 }
                 return null;
             }
@@ -159,7 +164,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
         super.onCreate(savedInstanceState);
         db = AppDatabase.getDatabase(getApplicationContext());
 
-        fetchSMS();
+        //fetchSMS();
 
         Log.i("MainActivity", "Chargement des messages");
         // TODO : Faire de tel sorte que le chargement de nouveau message ne puisse pas bloquer l'affichage
@@ -200,6 +205,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
             //setupFullScreenMode();
             fragmentTransaction.replace(fl_list.getId(), listContactFragment);
             fragmentTransaction.replace(fl_chat.getId(), chatFragment);
+            fragmentTransaction.detach(chatFragment).attach(chatFragment);
         } else {
             if (!listContactFragment.isSwipe()) {
                 fragmentTransaction.replace(fl_list.getId(), listContactFragment);
@@ -222,13 +228,16 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e("____________________", "TESTER");
         getSupportFragmentManager().beginTransaction().detach(listContactFragment).attach(listContactFragment).commit();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getSupportFragmentManager().beginTransaction().remove(chatFragment).commit();
+        }*/
 
         // Checks the orientation of the screen
         // updateDisplay();
