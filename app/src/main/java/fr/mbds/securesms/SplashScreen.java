@@ -17,7 +17,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -27,7 +26,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
@@ -115,12 +113,7 @@ public class SplashScreen extends AppCompatActivity {
         setupFullScreenMode();
 //        db = AppDatabase.getDatabase(getApplicationContext());
 //        fetchSMS();
-        // requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash_screen);
-
-        String access_token;
-        int expires_in;
 
         final SharedPreferences preferences = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -128,34 +121,18 @@ public class SplashScreen extends AppCompatActivity {
 
         Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
         Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
-        final boolean isValidate = validateToken(preferences.getString(getString(R.string.access_token), "No Access token"));
-
-        Log.w("[GRACE]", ""+isValidate);
 
         int SPLASH_TIME_OUT = 1000;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (isValidate) {
-                    Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-
+                validateToken();
             }
         }, SPLASH_TIME_OUT);
-
     }
 
 
-
-
-    public boolean validateToken(final String token) {
-        final boolean[] res = {false};
+    public void validateToken() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -163,29 +140,19 @@ public class SplashScreen extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
-                        //Log.d("[VALIDATE]", response);
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            Log.d("[VALIDATE2]", jsonObject.getString("roles"));
-                            Log.d("[VALIDATE2]", token);
-                            if (token.equals(jsonObject.getString("access_token"))) {
-                                Log.d("[VALIDATE]", "GOOD");
-                                res[0] = true;
-                            } else {
-                                Log.d("[VALIDATE]", "BAD");
-                                res[0] = false;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        Log.d("[VALIDATE]", response);
+                        Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e("[VALIDATE]", ""+error);
-                        res[0] = false;
+                        Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 }
         )
@@ -202,7 +169,6 @@ public class SplashScreen extends AppCompatActivity {
             }
         };
         queue.add(request);
-        return res[0];
     }
 
 
