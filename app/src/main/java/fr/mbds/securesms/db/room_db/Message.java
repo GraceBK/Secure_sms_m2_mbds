@@ -15,7 +15,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = {@Index(value = "id_msg", unique = true)})
 public class Message {
     @PrimaryKey(autoGenerate = true)
-    public int uid;
+    int uid;
 
     @ColumnInfo(name = "id_msg")
     private String id;

@@ -14,14 +14,11 @@ public class User {
     @ColumnInfo(name = "username")
     private String username;
 
-    @ColumnInfo(name = "mail")
-    private String mail;
-
     @ColumnInfo(name = "picture")
     private String thumbnail;
 
     @ColumnInfo(name = "indexToPubKey")
-    private String idPubKey = "VIDE";
+    private String idPubKey = "PING";
 
 
     public String getUsername() {
@@ -30,14 +27,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
     }
 
     public String getThumbnail() {

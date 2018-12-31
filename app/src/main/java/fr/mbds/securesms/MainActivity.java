@@ -119,7 +119,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
             @Override
             protected Void doInBackground(User... personnes) {
                 for (User personne : personnes) {
-                    db.personnesDao().insertPersonnes(personne);
+                    db.userDao().insertUser(personne);
                 }
                 return null;
             }
@@ -127,7 +127,19 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void saveNewMsg(String id, String username, String body, String date, boolean alreadyReturned, boolean currentUser) {
+    private void saveNewMsg(final String id, final String username, final String body, String date, boolean alreadyReturned, boolean currentUser) {
+
+        if (body.length() > 6) {
+            //Log.w("[GRACE]", "ici "+body.substring(0, 7));
+            if (body.substring(0, 7).equals("PING[|]")) {
+                // TODO update user (PublicKey) /!\ ideal dans la KeyStore
+                db.userDao().updateUser(username, body.substring(7));
+            }
+            if (body.substring(0, 7).equals("PONG[|]")) {
+                // TODO update user (PublicKey) /!\ ideal dans la KeyStore
+                db.userDao().updateUser(username, body.substring(7));
+            }
+        }
 
         Message message = new Message();
         message.setId(id);
@@ -141,10 +153,15 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
             @Override
             protected Void doInBackground(Message... messages) {
                 for (Message message1 : messages) {
-                    if (message1.getMessage().contains("PING[|]")) {
-                        // TODO save Cle
+/*                    if (message1.getMessage().substring(0, 6).equals("PING[|]") && message1.getMessage().length() > 6) {
+                        // TODO update user (PublicKey) /!\ ideal dans la KeyStore
+                        db.userDao().getUser(username).setIdPubKey(message1.getMessage().substring(7));
                         break;
-                    } else {
+                    } else if (message1.getMessage().substring(0, 6).equals("PONG[|]") && message1.getMessage().length() > 6) {
+                        // TODO update user (PublicKey) /!\ ideal dans la KeyStore
+                        db.userDao().getUser(username).setIdPubKey(message1.getMessage().substring(7));
+                    } else {*/
+                    if (!message1.getMessage().contains("[|]")) {
                         db.messageDao().insert(message1);
                     }
                 }
@@ -164,7 +181,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
         super.onCreate(savedInstanceState);
         db = AppDatabase.getDatabase(getApplicationContext());
 
-        //fetchSMS();
+        fetchSMS();
 
         Log.i("MainActivity", "Chargement des messages");
         // TODO : Faire de tel sorte que le chargement de nouveau message ne puisse pas bloquer l'affichage

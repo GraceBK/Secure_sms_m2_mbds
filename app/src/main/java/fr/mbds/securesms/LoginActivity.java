@@ -24,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import fr.mbds.securesms.proxy_for_emulator.ProxyHurlStack;
 import fr.mbds.securesms.utils.MyURL;
 
 public class LoginActivity extends AppCompatActivity {

@@ -100,7 +100,7 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             protected Void doInBackground(User... personnes) {
                 for (User personne : personnes) {
-                    db.personnesDao().insertPersonnes(personne);
+                    db.userDao().insertUser(personne);
                 }
                 return null;
             }

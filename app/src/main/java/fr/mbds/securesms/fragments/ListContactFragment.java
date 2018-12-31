@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyUserAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
-import fr.mbds.securesms.view_model.PersonnesViewModel;
+import fr.mbds.securesms.view_model.UserViewModel;
 
 public class ListContactFragment extends Fragment {
 
@@ -50,7 +51,7 @@ public class ListContactFragment extends Fragment {
     private List<User> userList;
 
     private AppDatabase db;
-    PersonnesViewModel viewModel;
+    UserViewModel viewModel;
 
 
     private Bundle args;
@@ -86,7 +87,7 @@ public class ListContactFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.list_contact_rc);
 
         db = AppDatabase.getDatabase(getActivity().getApplicationContext());
-        userList = db.personnesDao().getAllPersonnes();
+        userList = db.userDao().getAllUser();
 
         adapter = new MyUserAdapter(userList);
         layoutManager = new LinearLayoutManager(getContext());
@@ -95,8 +96,8 @@ public class ListContactFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         Log.e("___________________", "COUCOU onCreateView");
 
-        viewModel = ViewModelProviders.of(this).get(PersonnesViewModel.class);
-        viewModel.getPersonneList().observe(this, new Observer<List<User>>() {
+        viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        viewModel.getUserList().observe(this, new Observer<List<User>>() {
             @Override
             public void onChanged(@Nullable List<User> personnes) {
                 adapter.updatePersonneList(personnes);
@@ -132,6 +133,7 @@ public class ListContactFragment extends Fragment {
             @Override
             public void onLongClick(View view, int position) {
                 Log.e("--------->", "LONG");
+                Toast.makeText(getContext(), "LONG CLICK", Toast.LENGTH_LONG).show();
                 //setData();
                 // TODO : Send public Key
 

@@ -23,13 +23,19 @@ public interface UserDao {
     void delete(User... users);
 
     @Query("SELECT * FROM User")
-    List<User> getAllPersonnes();
+    List<User> getAllUser();
+
+    @Query("SELECT * FROM User WHERE username = :user")
+    User getUser(String user);
+
+    @Query("UPDATE User SET indexToPubKey = :newidPubKey WHERE username = :user")
+    void updateUser(String user, String newidPubKey);
 
     @Query("SELECT * FROM User")
     LiveData<List<User>> getAll();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertPersonnes(User... users);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertUser(User... users);
 
     @Query("DELETE FROM User")
     void delete();

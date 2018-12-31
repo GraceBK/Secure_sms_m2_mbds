@@ -10,18 +10,18 @@ import java.util.List;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
 
-public class PersonnesViewModel extends AndroidViewModel {
+public class UserViewModel extends AndroidViewModel {
 
-    private LiveData<List<User>> personneList;
+    private LiveData<List<User>> userList;
 
-    public PersonnesViewModel(@NonNull Application application) {
+    public UserViewModel(@NonNull Application application) {
         super(application);
 
         AppDatabase db = AppDatabase.getDatabase(this.getApplication());
-        personneList = db.personnesDao().getAll();
+        userList = db.userDao().getAll();
     }
 
-    public LiveData<List<User>> getPersonneList() {
-        return personneList;
+    public LiveData<List<User>> getUserList() {
+        return userList;
     }
 }

@@ -13,6 +13,13 @@
     <string name="access_token">access_token</string>
     <string name="expires_in">expires_in</string>
 
+
+    <string name="ack_ping_send">En attente d\'un PONG</string>
+    <string name="ack_pong_send">PONG</string>
+    <string name="ack_ping_receive">expires_in</string>
+    <string name="ack_pong_receive">expiresin</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_create_contact">CreateContactActivity</string>

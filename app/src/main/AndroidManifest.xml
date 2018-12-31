@@ -9,14 +9,24 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+    ERROR : com.android.volley.NoConnectionError: java.io.IOException: Cleartext HTTP traffic to baobab.tokidev.fr not permitted
+
+    SOL: https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted
+
+    android:usesCleartextTraffic="true"
+    tools:targetApi="m"
+    -->
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/CustomByGraceBK"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning"
+        tools:targetApi="m">
 
         <activity
             android:name=".SplashScreen"

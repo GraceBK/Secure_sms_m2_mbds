@@ -56,14 +56,14 @@ public class CreateContactActivity extends AppCompatActivity {
         int b = rand.nextInt(255);
 
         User user = new User();
-        user.setUsername(username);
+        user.setUsername(username.replaceAll("\\s+$", ""));
         user.setThumbnail(r + "-" + g + "-" + b);
 
         new AsyncTask<User, Void, Void>() {
             @Override
             protected Void doInBackground(User... personnes) {
                 for (User personne : personnes) {
-                    db.personnesDao().insertPersonnes(personne);
+                    db.userDao().insertUser(personne);
                 }
                 return null;
             }

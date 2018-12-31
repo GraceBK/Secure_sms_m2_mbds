@@ -48,6 +48,23 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
         myViewHolder.firstLetterName.setText(user.getUsername().substring(0, 1).toUpperCase());
 
+        if (user.getIdPubKey().equals("PING")) {
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
+            myViewHolder.shortResume.setText("Envoyer votre cle public");
+        } else if (user.getIdPubKey().equals("PING_SEND")) {
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
+            myViewHolder.shortResume.setText("Cle public envoye");
+        } else if (user.getIdPubKey().equals("PONG_SEND")) {
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
+            myViewHolder.shortResume.setText("");
+        } else if (user.getIdPubKey().equals("PING_RECEIVE")) {
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
+            myViewHolder.shortResume.setText("");
+        } else {// PONG_RECEIVE
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock);
+            myViewHolder.shortResume.setText("Chat secure");
+        }
+
     }
 
     @Override
@@ -68,6 +85,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         public TextView shortResume;
         public ImageView thumbnail;
         public TextView firstLetterName;
+        public ImageView imgSecure;
 
         MyViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -76,7 +94,8 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
             username = itemView.findViewById(R.id.item_list_username);
             thumbnail = itemView.findViewById(R.id.item_list_img);
             firstLetterName = itemView.findViewById(R.id.item_list_img_txt);
-            //shortResume = itemView.findViewById(R.id.item_list_resume);
+            imgSecure = itemView.findViewById(R.id.id_sms_is_secure);
+            shortResume = itemView.findViewById(R.id.item_list_resume);
 
             /*linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override

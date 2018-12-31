@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,16 +45,23 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
+import fr.mbds.securesms.db.room_db.User;
 import fr.mbds.securesms.utils.MyURL;
 import fr.mbds.securesms.view_model.MessageViewModel;
 import fr.mbds.securesms.view_model.MyViewModelFactory;
+import fr.mbds.securesms.view_model.UserViewModel;
 
 public class ChatFragment extends Fragment {
 
     private TextView res;
-    private TextView resSms;
     private EditText editSms;
     private Button send;
+    private Button btnSendPing;
+    private Button btnSendPong;
+
+    private LinearLayout emptyLayout;
+    private LinearLayout noEmptyLayout;
+    private LinearLayout layoutEditMsg;
 
     private ListView listView;
     private MyMsgAdapter adapter;
@@ -61,7 +69,7 @@ public class ChatFragment extends Fragment {
     private String lastId;
     private AppDatabase db;
     MessageViewModel viewModel;
-    //PersonnesViewModel viewModel;
+    UserViewModel viewModelUser;
 
 /*
     public ChatFragment() {
@@ -77,6 +85,8 @@ public class ChatFragment extends Fragment {
 
         editSms = rootView.findViewById(R.id.edt_msg);
         send = rootView.findViewById(R.id.btn_send_msg);
+        btnSendPing = rootView.findViewById(R.id.btn_ping);
+        btnSendPong = rootView.findViewById(R.id.btn_pong);
 
         listView = rootView.findViewById(R.id.conversation);
 
@@ -84,10 +94,6 @@ public class ChatFragment extends Fragment {
         listView.setAdapter(adapter);
 
         res = rootView.findViewById(R.id.show);
-        //resAuthor = rootView.findViewById(R.id.show_author);
-//        resAuthor.setText("");
-        resSms = rootView.findViewById(R.id.show_sms);
-        resSms.setText("");
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +101,20 @@ public class ChatFragment extends Fragment {
                 sendMsg();
             }
         });
+
+        btnSendPing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendPingPong(res.getText().toString(), true);
+            }
+        });
+        btnSendPong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendPingPong(res.getText().toString(), false);
+            }
+        });
+
         return rootView;
     }
 
@@ -106,23 +126,59 @@ public class ChatFragment extends Fragment {
         lastId = "";
 
         try {
-            viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), Objects.requireNonNull(args).getString("USERNAME"))).get(MessageViewModel.class);
-            viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
-                @Override
-                public void onChanged(@Nullable List<Message> messages) {
-                    adapter.addManyMassage(messages);
-                    assert messages != null;
-                    int nb = adapter.getCount() - 1;
-                    if (nb > 0) {
-                        lastId = messages.get(nb).getId() + "_" + Objects.requireNonNull(args).getString("USERNAME");
-                    } else {
-                        // TODO : send public key
-                        lastId = "PUBLICKEY";
-                    }
 
-                    //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
-                }
-            });
+            User tt = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME"));
+
+            String t = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME")).getIdPubKey();
+
+            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getIdPubKey(), Toast.LENGTH_LONG).show();
+            Log.w("[GRACE]", Objects.requireNonNull(args).getString("USERNAME")+" setIdPubKey = " + t);
+
+            if (tt.getIdPubKey().equals("PING_SEND")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            if (tt.getIdPubKey().equals("SEND_PONG")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            if (tt.getIdPubKey().equals("PING_RECEIVE")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            if (tt.getIdPubKey().equals("PONG_RECEIVE")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
+
+                viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), Objects.requireNonNull(args).getString("USERNAME"))).get(MessageViewModel.class);
+                viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Message> messages) {
+                        adapter.addManyMassage(messages);
+                        assert messages != null;
+                        int nb = adapter.getCount() - 1;
+                        if (nb > 0) {
+                            lastId = messages.get(nb).getId() + "_" + Objects.requireNonNull(args).getString("USERNAME");
+                        } else {
+                            // TODO : send public key
+                            lastId = "PUBLICKEY";
+                        }
+
+                        //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
         } catch (Exception e) {
             Log.e("", ""+e);
         }
@@ -133,6 +189,37 @@ public class ChatFragment extends Fragment {
             requestGetSMS();
         }
     }
+
+    @SuppressLint("StaticFieldLeak")
+    public void sendPingPong(final String username, final boolean isPingPong) {
+
+        final String key;
+
+        if (isPingPong) {
+            // TODO : key is my public key
+            key = "MyPublicKey";
+            requestCreateMsg(res.getText().toString(), "PING[|]" + key);
+            db.userDao().updateUser(res.getText().toString(),"PING_SEND");
+        } else {
+            // TODO : key is their public key
+            key = "clefAESchiffreeAvecKpA";
+            requestCreateMsg(res.getText().toString(), "PONG[|]" + key);
+        }
+
+        /*new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                if (isPingPong) {
+                    db.userDao().getUser(username).setIdPubKey("PING_OK");
+                    Log.w("[PING]", ""+db.userDao().getUser(username).getIdPubKey());
+                } else {
+                    db.userDao().getUser(username).setIdPubKey(key);
+                }
+                return null;
+            }
+        }.execute();*/
+    }
+
 
     public void sendMsg() {
         if (!Objects.equals(editSms.getText().toString(), "")) {
@@ -252,11 +339,6 @@ public class ChatFragment extends Fragment {
                                 String dateCreated = sms.getString("dateCreated");
                                 Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
 
-
-//                                resAuthor.append(author);
-//                                resAuthor.append("\n\n");
-                                resSms.append("Author : "+author+"\n"+"message : "+msg);
-                                resSms.append("\n\n");
 
                                 //adapter.add(new Message(author, msg, true));
 
