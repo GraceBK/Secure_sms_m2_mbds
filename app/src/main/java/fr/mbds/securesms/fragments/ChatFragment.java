@@ -177,7 +177,7 @@ public class ChatFragment extends Fragment {
 
         if (args != null) {
             res.setText(args.getString("USERNAME"));
-            requestGetSMS();
+            // requestGetSMS();
         }
     }
 
@@ -293,7 +293,7 @@ public class ChatFragment extends Fragment {
 
     public void changeDataPropriete(final Bundle bundle) {
         res.setText(bundle.getString("USERNAME"));
-        if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
+        /*if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
             Log.e("MESSAGES", bundle.getString("USERNAME")+"*****"+bundle.getString("MESSAGES"));
             try {
                 //Log.w("MESSAGES", "*****"+db.messageDao().loadMessageForMsgUser(bundle.getString("USERNAME")));
@@ -316,6 +316,64 @@ public class ChatFragment extends Fragment {
                 Log.e("", ""+e);
             }
             adapter.notifyDataSetInvalidated();
+        }*/
+
+        try {
+
+            assert getArguments() != null;
+            editSms.setText(getArguments().getString("TXT_SHARED"));
+
+            User tt = db.userDao().getUser(bundle.getString("USERNAME"));
+
+            String t = db.userDao().getUser(bundle.getString("USERNAME")).getIdPubKey();
+
+            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getIdPubKey(), Toast.LENGTH_LONG).show();
+            Log.w("[GRACE]", bundle.getString("USERNAME")+" setIdPubKey = " + t);
+
+            if (tt.getIdPubKey().equals("SEND_PING")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            else if (tt.getIdPubKey().equals("WAIT_PONG")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            else if (tt.getIdPubKey().equals("SEND_PONG")) {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            } else {
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
+
+                viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), bundle.getString("USERNAME"))).get(MessageViewModel.class);
+                viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Message> messages) {
+                        adapter.addManyMassage(messages);
+                        //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.e("[ERROR onStart]", ""+e);
         }
     }
 
