@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,12 +29,28 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
+import fr.mbds.securesms.kryptos.KryptosAES;
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
 
@@ -127,6 +145,42 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
 
         Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
         Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
+
+        KeyPairGenerator keyPairGenerator = null;
+        KeyGenParameterSpec.Builder builder = null;
+
+        KeyPair keyPair = null;
+        PublicKey publicKey = null;
+        PrivateKey privateKey = null;
+
+
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
+            builder = new KeyGenParameterSpec.Builder("grace", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+            try {
+                keyPairGenerator.initialize(builder.build());
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
+            //keyPairGenerator.initialize(2048);
+
+            keyPair = keyPairGenerator.genKeyPair();
+
+            publicKey = keyPair.getPublic();
+            privateKey = keyPair.getPrivate();
+
+            //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
+
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }/* catch ( InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }*/
+
+        Log.w("[public]", "-------------" + publicKey);
+        Log.w("[privee]", "-------------" + privateKey);
 
         int SPLASH_TIME_OUT = 1000;
         new Handler().postDelayed(new Runnable() {

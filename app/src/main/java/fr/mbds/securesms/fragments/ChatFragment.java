@@ -33,6 +33,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,23 +67,12 @@ public class ChatFragment extends Fragment {
     private Button btnSendPing;
     private Button btnSendPong;
 
-    private LinearLayout emptyLayout;
-    private LinearLayout noEmptyLayout;
-    private LinearLayout layoutEditMsg;
-
     private ListView listView;
     private MyMsgAdapter adapter;
 
     private String lastId;
     private AppDatabase db;
     MessageViewModel viewModel;
-    UserViewModel viewModelUser;
-
-/*
-    public ChatFragment() {
-        // Required empty public constructor
-    }
-*/
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -127,6 +124,9 @@ public class ChatFragment extends Fragment {
 
         try {
 
+            assert getArguments() != null;
+            editSms.setText(getArguments().getString("TXT_SHARED"));
+
             User tt = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME"));
 
             String t = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME")).getIdPubKey();
@@ -165,19 +165,7 @@ public class ChatFragment extends Fragment {
 
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            }
-
-            /*else if (tt.getIdPubKey().equals("SEND_PONG_BIS") *AND EMPTY*) {
-                * BOB [PAGE 2 bis] *
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.VISIBLE);
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
-
-            }*/ else {
+            } else {
 
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
@@ -211,7 +199,7 @@ public class ChatFragment extends Fragment {
 
         if (args != null) {
             res.setText(args.getString("USERNAME"));
-            requestGetSMS();
+            // requestGetSMS();
         }
     }
 
@@ -223,27 +211,46 @@ public class ChatFragment extends Fragment {
         if (isPingPong) {
             // TODO : key is my public key (MyPublicKey)
             key = "SEND_PONG";
-            requestCreateMsg(res.getText().toString(), "PING[|]" + key);
-            db.userDao().updateUser(res.getText().toString(),"SEND_PING_BIS");
+            // requestCreateMsg(res.getText().toString(), "PING[|]" + key);
+            db.userDao().updateUser(username, key);
+
+            KeyStore keyStore;
+            PublicKey publicKey = null;
+
+            try {
+                keyStore = KeyStore.getInstance("AndroidKeyStore");
+                keyStore.load(null);
+
+                publicKey = keyStore.getCertificate("grace").getPublicKey();
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+                e.printStackTrace();
+            }
+            Log.w("-----", "Auteur[|]"+"PING[|]" + publicKey);
+
+            requestCreateMsg(username, "PING[|]" + publicKey);
         } else {
             // TODO : key is their public key
             key = "SEND_PONG_BIS";
-            requestCreateMsg(res.getText().toString(), "PONG[|]" + key);
-            db.userDao().updateUser(res.getText().toString(),"SEND_PONG_BIS");
-        }
+            //requestCreateMsg(res.getText().toString(), "PONG[|]" + key);
+            db.userDao().updateUser(username, key);
 
-        /*new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                if (isPingPong) {
-                    db.userDao().getUser(username).setIdPubKey("PING_OK");
-                    Log.w("[PING]", ""+db.userDao().getUser(username).getIdPubKey());
-                } else {
-                    db.userDao().getUser(username).setIdPubKey(key);
-                }
-                return null;
+            KeyStore keyStore;
+            PrivateKey privateKey = null;
+
+            try {
+                keyStore = KeyStore.getInstance("AndroidKeyStore");
+                keyStore.load(null);
+
+                KeyStore.Entry entry = keyStore.getEntry("grace", null);
+
+                privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
+                e.printStackTrace();
             }
-        }.execute();*/
+
+            Log.w("-----", "Auteur[|]"+"PONG[|]" + privateKey);
+            requestCreateMsg(username, "PONG[|]" + "------");
+        }
     }
 
 
@@ -348,71 +355,6 @@ public class ChatFragment extends Fragment {
         queue.add(objectRequest);
     }
 
-    public void requestGetSMS() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-
-        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        //Toast.makeText(getContext(), "GOOD "+response, Toast.LENGTH_SHORT).show();
-                        try {
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject sms = response.getJSONObject(i);
-                                String author = sms.getString("author");
-                                String msg = sms.getString("msg");
-                                String dateCreated = sms.getString("dateCreated");
-                                Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
-
-
-                                //adapter.add(new Message(author, msg, true));
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
-                        Log.e("ERROR SMS", error.toString());
-                    }
-                })
-
-        /*JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.i("SMS", "---->"+response.toString());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
-                        //clearAllEditText();
-                        Log.e("ERROR SMS", error.toString());
-                    }
-                })*/
-        {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
-                String auth = sharedPref.getString("access_token", "No Access token");
-                Log.e("--->", auth);
-
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer "+auth);
-                return headers;
-            }
-        };
-        queue.add(arrayRequest);
-    }
-
     public void changeDataPropriete(final Bundle bundle) {
         res.setText(bundle.getString("USERNAME"));
         if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
@@ -448,6 +390,75 @@ public class ChatFragment extends Fragment {
             }
             adapter.notifyDataSetInvalidated();
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void requestGetSMS() {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        //Toast.makeText(getContext(), "GOOD "+response, Toast.LENGTH_SHORT).show();
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject sms = response.getJSONObject(i);
+                                String author = sms.getString("author");
+                                String msg = sms.getString("msg");
+                                String dateCreated = sms.getString("dateCreated");
+                                Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
+
+
+                                //adapter.add(new Message(author, msg, true));
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
+                        Log.e("ERROR SMS", error.toString());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                String auth = sharedPref.getString("access_token", "No Access token");
+                Log.e("--->", auth);
+
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer "+auth);
+                return headers;
+            }
+        };
+        queue.add(arrayRequest);
     }
 
 }

@@ -1,19 +1,42 @@
 package fr.mbds.securesms;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
+import fr.mbds.securesms.utils.MyURL;
 
 public class CreateContactActivity extends AppCompatActivity {
 
@@ -37,8 +60,9 @@ public class CreateContactActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!username.getText().toString().isEmpty()) {
-                    createData(username.getText().toString());
+                    // addNewUser(username.getText().toString());
                     // TODO : Send clef public
+                    sendPing(username.getText().toString());
                     onBackPressed();
                 } else {
                     Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -49,7 +73,25 @@ public class CreateContactActivity extends AppCompatActivity {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void createData(String username) {
+    public void sendPing(final String username) {
+        KeyStore keyStore;
+        PublicKey publicKey = null;
+
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+
+            publicKey = keyStore.getCertificate("grace").getPublicKey();
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
+        }
+        Log.w("-----", "Auteur[|]"+"PING[|]" + publicKey);
+
+        requestCreateMsg(username, "PING[|]" + publicKey);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void addNewUser(String username, String key) {
         Random rand = new Random();
         int r = rand.nextInt(255);
         int g = rand.nextInt(255);
@@ -58,6 +100,7 @@ public class CreateContactActivity extends AppCompatActivity {
         User user = new User();
         user.setUsername(username.replaceAll("\\s+$", ""));
         user.setThumbnail(r + "-" + g + "-" + b);
+        user.setIdPubKey(key);
 
         new AsyncTask<User, Void, Void>() {
             @Override
@@ -68,6 +111,53 @@ public class CreateContactActivity extends AppCompatActivity {
                 return null;
             }
         }.execute(user);
+    }
+
+
+
+    public void requestCreateMsg(final String receiver, final String message) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("receiver", receiver);
+            jsonObject.put("message", message);
+        } catch (JSONException e) {
+            Log.e("ERROR JSONObject", jsonObject.toString());
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, MyURL.SEND_SMS.toString(), jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i("SEND OK", response.toString());
+                        final String key;
+
+                        key = "SEND_PONG";
+                        addNewUser(receiver, key);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), receiver + " N'existe pas", Toast.LENGTH_SHORT).show();
+                        Log.e("ERROR SEND", error.toString());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                String auth = sharedPref.getString("access_token", "No Access token");
+
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer "+auth);
+                return headers;
+            }
+        };
+        queue.add(objectRequest);
     }
 
     public void initView() {

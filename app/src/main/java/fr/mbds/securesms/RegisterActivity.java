@@ -2,6 +2,8 @@ package fr.mbds.securesms;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +22,13 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("[REGISTER]", response.toString());
-                        // TODO : Generer Private and Public key
+                        createKey(username);
                         // TODO : Save current state (is connect) in SharePreference
                         Intent goToMain = new Intent(RegisterActivity.this, MainActivity.class);
                         startActivity(goToMain);
@@ -100,6 +109,44 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
         queue.add(objectRequest);
+    }
+
+    public void createKey(String keystoreAlias) {
+        KeyPairGenerator keyPairGenerator;
+        KeyGenParameterSpec.Builder builder;
+
+        KeyPair keyPair;
+        PublicKey publicKey = null;
+        PrivateKey privateKey = null;
+
+
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
+            builder = new KeyGenParameterSpec.Builder(keystoreAlias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+            try {
+                keyPairGenerator.initialize(builder.build());
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
+            //keyPairGenerator.initialize(2048);
+
+            keyPair = keyPairGenerator.genKeyPair();
+
+            publicKey = keyPair.getPublic();
+            privateKey = keyPair.getPrivate();
+
+            //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
+
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }/* catch ( InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }*/
+
+        Log.w("[public]", "-------------" + publicKey);
+        Log.w("[privee]", "-------------" + privateKey);
     }
 
     public void actionComposant() {

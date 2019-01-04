@@ -12,6 +12,7 @@
     <string name="refresh_token">refresh_token</string>
     <string name="access_token">access_token</string>
     <string name="expires_in">expires_in</string>
+    <string name="pref_shared_txt">txt_shared</string>
 
 
     <string name="ack_ping_send">En attente d\'un PONG</string>

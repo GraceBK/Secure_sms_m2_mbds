@@ -58,9 +58,9 @@ public class MyServiceFetchMessage extends Service {
 
     private AppDatabase db;
 
-    private final int tempsMax = 180000;    // 3 min (180000 ms)
+    private static final long DEFAULT_SYNC_INTERVAL = 5 * 1000;    // 3 min (180000 ms)
 
-    private Handler handler = new Handler();
+    private Handler handler;
 
     private Runnable runnable = new Runnable() {
         @RequiresApi(api = Build.VERSION_CODES.O)
@@ -127,14 +127,16 @@ public class MyServiceFetchMessage extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(getApplicationContext(), "Service starting", Toast.LENGTH_SHORT).show();
+        handler = new Handler();
+        handler.post(runnable); // On redemande toute les 3 min
         // Si le service est tué, recommencez
         return START_STICKY;
     }
 
-    @Override
+    /*@Override
     public void onCreate() {
         super.onCreate();
-        handler.postDelayed(runnable, tempsMax); // On redemande toute les 3 min
+        handler.postDelayed(runnable, DEFAULT_SYNC_INTERVAL); // On redemande toute les 3 min
         //bindService(new Intent(this, MyServiceFetchMessage.class), connection, BIND_AUTO_CREATE);
         Toast.makeText(getApplicationContext(), "Service Create", Toast.LENGTH_SHORT).show();
     }
@@ -143,7 +145,7 @@ public class MyServiceFetchMessage extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(getApplicationContext(), "Service Destroy", Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     @Override
     public IBinder onBind(Intent intent) {

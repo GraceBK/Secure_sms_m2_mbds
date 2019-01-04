@@ -263,9 +263,18 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 
     void handleSendText(Intent intent) {
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
+
         if (sharedText != null) {
-            // TODO : Update UI to reflect text being shared
-            Log.e("SHARE TEXT", ""+sharedText);
+            // TODO : Update UI to reflect text being shared (Indice use SharePreference
+            Log.e("SHARETEXT", ""+sharedText);
+
+            editor.putString(getString(R.string.pref_shared_txt), sharedText);
+            editor.apply();
+        } else {
+            editor.remove(getString(R.string.pref_shared_txt));
+            editor.commit();
         }
     }
 

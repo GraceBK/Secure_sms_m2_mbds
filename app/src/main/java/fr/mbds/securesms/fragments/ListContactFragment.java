@@ -1,9 +1,11 @@
 package fr.mbds.securesms.fragments;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -108,8 +110,17 @@ public class ListContactFragment extends Fragment {
             @Override
             public void onClick(View view, int position) {
                 try {
+                    SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.apply();
+
+                    String sharedTXT = preferences.getString(getString(R.string.pref_shared_txt), "");
+
+                    Log.e("[ACCESS TOKEN]", "-------------"+sharedTXT);
+
                     args.putString("USERNAME", userList.get(position).getUsername());
                     args.putString("MESSAGES", userList.get(position).getUsername());
+                    args.putString("TXT_SHARED", sharedTXT);
                     // args.putString("RESUME", userList.get(pos).getResume());
                     //fragment.setArguments(args);
 
