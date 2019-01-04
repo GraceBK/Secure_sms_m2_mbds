@@ -11,11 +11,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -32,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -52,7 +56,7 @@ public class MyServiceFetchMessage extends Service {
     private MyServiceFetchMessage serviceFetchMessage;
     private NotificationManager notificationManager;
 
-    private AppDatabase db/* = AppDatabase.getDatabase(getApplicationContext())*/;
+    private AppDatabase db;
 
     private final int tempsMax = 180000;    // 3 min (180000 ms)
 
@@ -63,36 +67,45 @@ public class MyServiceFetchMessage extends Service {
         @Override
         public void run() {
             // Code a executer de facon periodique
-            //fetchSMS();
-            Toast.makeText(getApplicationContext(), "FETCH", Toast.LENGTH_SHORT).show();
 
-            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "notify_channel_id");
+            fetchSMS();
 
-            NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
-
-            notification.setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic_stat_name)
-                    .setContentTitle(getText(R.string.notification_title))
-                    .setContentText(getText(R.string.notification_message))
-                    .setTicker(getText(R.string.ticker_text))
-                    .setPriority(Notification.PRIORITY_MAX);
-
-            notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                String channelId = "0001";
-                NotificationChannel channel = new NotificationChannel(channelId, "Test", NotificationManager.IMPORTANCE_DEFAULT);
-                notificationManager.createNotificationChannel(channel);
-                notification.setChannelId(channelId);
-            }
-
-            notificationManager.notify(0, notification.build());
-            
             handler.postDelayed(this, 5000);
         }
     };
+
+    private void newNotification(String name) {
+        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "notify_channel_id");
+
+        builder.setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentTitle(getText(R.string.notification_title))
+                .setContentText(getText(R.string.notification_message) + " de " + name)
+                //.setTicker(getText(R.string.ticker_text))
+                .setPriority(Notification.PRIORITY_MAX)
+                    /*//Vibration
+                    .setVibrate(new long[] { 1000, 1000 })
+                    //LED
+                    .setLights(Color.RED, 3000, 3000)
+                    //Sound
+                    .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)*/;
+
+        notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = "0001";
+            NotificationChannel channel = new NotificationChannel(channelId, "Test", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+            builder.setChannelId(channelId);
+        }
+
+        int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+
+        notificationManager.notify(m, builder.build());
+
+    }
 
 
     // Interface de connexion au service
@@ -121,7 +134,7 @@ public class MyServiceFetchMessage extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        handler.postDelayed(runnable, 5000); // On redemande toute les 3 min
+        handler.postDelayed(runnable, tempsMax); // On redemande toute les 3 min
         //bindService(new Intent(this, MyServiceFetchMessage.class), connection, BIND_AUTO_CREATE);
         Toast.makeText(getApplicationContext(), "Service Create", Toast.LENGTH_SHORT).show();
     }
@@ -148,6 +161,9 @@ public class MyServiceFetchMessage extends Service {
 
 
     public void fetchSMS() {
+        Toast.makeText(getApplicationContext(), "FETCH", Toast.LENGTH_SHORT).show();
+        Log.d("[FETCH]", "-----> FETCH");
+        db = AppDatabase.getDatabase(getApplicationContext());
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -161,14 +177,20 @@ public class MyServiceFetchMessage extends Service {
                                 JSONObject sms = response.getJSONObject(i);
                                 String idMsg = sms.getString("id");
                                 String author = sms.getString("author");
-                                String msg = sms.getString("msg");
+                                String body = sms.getString("msg");
                                 String dateCreated = sms.getString("dateCreated");
                                 boolean alreadyReturned = sms.getBoolean("alreadyReturned");
                                 boolean currentUser = false;
-                                Log.i("[FETCH SMS]", sms.getString("id")+ " ===== "+ author + "------"+msg+"++++"+dateCreated);
 
                                 saveNewContact(author);
-                                saveNewMsg(idMsg, author, msg, dateCreated, alreadyReturned, currentUser);
+
+                                if (!alreadyReturned) {
+                                    newNotification(author);
+                                    saveNewMsg(idMsg, author, body, dateCreated, alreadyReturned, currentUser);
+                                } else {
+                                    // Todo : gerer la frequence des fetch
+                                }
+
 
                             }
                         } catch (JSONException e) {
