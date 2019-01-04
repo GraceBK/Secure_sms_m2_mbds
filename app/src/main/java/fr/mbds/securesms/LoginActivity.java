@@ -135,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
         et_password = findViewById(R.id.login_et_password);
         tv_create = findViewById(R.id.login_tv_create_account);
         btn_login = findViewById(R.id.login_btn_login);
-        et_username.setText("azerty");
-        et_password.setText("azerty");
+        et_username.setText("username1");
+        et_password.setText("password");
     }
 }

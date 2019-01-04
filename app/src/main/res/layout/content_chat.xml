@@ -45,7 +45,7 @@
             android:padding="5dp">
 
             <!-- [PAGE 1] Si pas de message (envoyer PING) -->
-            <LinearLayout
+            <!--LinearLayout
                 android:id="@+id/chat_ping"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:text="SEND PING"/>
 
-            </LinearLayout>
+            </LinearLayout-->
 
             <!-- [PAGE 1 bis] Si PING SEND (attent PONG) -->
             <LinearLayout

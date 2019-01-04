@@ -249,14 +249,25 @@ public class MyServiceFetchMessage extends Service {
     private void saveNewMsg(final String id, final String username, final String body, String date, boolean alreadyReturned, boolean currentUser) {
 
         if (body.length() > 6) {
-            //Log.w("[GRACE]", "ici "+body.substring(0, 7));
             if (body.substring(0, 7).equals("PING[|]")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                db.userDao().updateUser(username, body.substring(7));
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        db.userDao().updateUser(username, body.substring(7));
+                        return null;
+                    }
+                }.execute();
             }
             if (body.substring(0, 7).equals("PONG[|]")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                db.userDao().updateUser(username, body.substring(7));
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        db.userDao().updateUser(username, body.substring(7));
+                        return null;
+                    }
+                }.execute();
             }
         }
 

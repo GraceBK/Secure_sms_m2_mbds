@@ -48,10 +48,10 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
         myViewHolder.firstLetterName.setText(user.getUsername().substring(0, 1).toUpperCase());
 
-        if (user.getIdPubKey().equals("SEND_PING")) {
+        if (user.getIdPubKey().equals("WAIT_PONG")) {
             /* ALICE [PAGE 1] --ping--> BOB [] */
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
-            myViewHolder.shortResume.setText("Envoyer votre cle public");
+            myViewHolder.shortResume.setText("En attent d'un PONG");
 
         } else if (user.getIdPubKey().equals("SEND_PING_BIS")) {
             /* ALICE [PAGE 1 bis] */

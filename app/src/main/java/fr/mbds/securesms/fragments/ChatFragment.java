@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +37,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
@@ -57,20 +55,18 @@ import fr.mbds.securesms.db.room_db.User;
 import fr.mbds.securesms.utils.MyURL;
 import fr.mbds.securesms.view_model.MessageViewModel;
 import fr.mbds.securesms.view_model.MyViewModelFactory;
-import fr.mbds.securesms.view_model.UserViewModel;
 
 public class ChatFragment extends Fragment {
 
     private TextView res;
     private EditText editSms;
     private Button send;
-    private Button btnSendPing;
+    //private Button btnSendPing;
     private Button btnSendPong;
 
     private ListView listView;
     private MyMsgAdapter adapter;
 
-    private String lastId;
     private AppDatabase db;
     MessageViewModel viewModel;
 
@@ -82,7 +78,7 @@ public class ChatFragment extends Fragment {
 
         editSms = rootView.findViewById(R.id.edt_msg);
         send = rootView.findViewById(R.id.btn_send_msg);
-        btnSendPing = rootView.findViewById(R.id.btn_ping);
+        //btnSendPing = rootView.findViewById(R.id.btn_ping);
         btnSendPong = rootView.findViewById(R.id.btn_pong);
 
         listView = rootView.findViewById(R.id.conversation);
@@ -99,16 +95,16 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        btnSendPing.setOnClickListener(new View.OnClickListener() {
+        /*btnSendPing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendPingPong(res.getText().toString(), true);
             }
-        });
+        });*/
         btnSendPong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendPingPong(res.getText().toString(), false);
+                sendPong(res.getText().toString());
             }
         });
 
@@ -120,7 +116,6 @@ public class ChatFragment extends Fragment {
         super.onStart();
         final Bundle args = getArguments();
         db = AppDatabase.getDatabase(getActivity().getApplicationContext());
-        lastId = "";
 
         try {
 
@@ -135,8 +130,6 @@ public class ChatFragment extends Fragment {
             Log.w("[GRACE]", Objects.requireNonNull(args).getString("USERNAME")+" setIdPubKey = " + t);
 
             if (tt.getIdPubKey().equals("SEND_PING")) {
-                /* ALICE [PAGE 1] --ping--> BOB [] */
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -145,9 +138,7 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            else if (tt.getIdPubKey().equals("SEND_PING_BIS")) {
-                /* ALICE [PAGE 1 bis] */
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+            else if (tt.getIdPubKey().equals("WAIT_PONG")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -157,8 +148,6 @@ public class ChatFragment extends Fragment {
             }
 
             else if (tt.getIdPubKey().equals("SEND_PONG")) {
-                /* ALICE [PAGE 1 bis] <--pong-- BOB [PAGE 2] */
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -166,8 +155,6 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             } else {
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -180,14 +167,6 @@ public class ChatFragment extends Fragment {
                     @Override
                     public void onChanged(@Nullable List<Message> messages) {
                         adapter.addManyMassage(messages);
-                        assert messages != null;
-                        int nb = adapter.getCount() - 1;
-                        if (nb > 0) {
-                            lastId = messages.get(nb).getId() + "_" + Objects.requireNonNull(args).getString("USERNAME");
-                        } else {
-                            // TODO : send public key
-                            lastId = "PUBLICKEY";
-                        }
                         //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
                     }
                 });
@@ -196,87 +175,45 @@ public class ChatFragment extends Fragment {
             Log.e("[ERROR onStart]", ""+e);
         }
 
-
         if (args != null) {
             res.setText(args.getString("USERNAME"));
-            // requestGetSMS();
+            requestGetSMS();
         }
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void sendPingPong(final String username, final boolean isPingPong) {
+    public void sendPong(final String username) {
 
-        final String key;
+        KeyStore keyStore;
+        PrivateKey privateKey = null;
 
-        if (isPingPong) {
-            // TODO : key is my public key (MyPublicKey)
-            key = "SEND_PONG";
-            // requestCreateMsg(res.getText().toString(), "PING[|]" + key);
-            db.userDao().updateUser(username, key);
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
 
-            KeyStore keyStore;
-            PublicKey publicKey = null;
+            KeyStore.Entry entry = keyStore.getEntry("grace", null);
 
-            try {
-                keyStore = KeyStore.getInstance("AndroidKeyStore");
-                keyStore.load(null);
-
-                publicKey = keyStore.getCertificate("grace").getPublicKey();
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-                e.printStackTrace();
-            }
-            Log.w("-----", "Auteur[|]"+"PING[|]" + publicKey);
-
-            requestCreateMsg(username, "PING[|]" + publicKey);
-        } else {
-            // TODO : key is their public key
-            key = "SEND_PONG_BIS";
-            //requestCreateMsg(res.getText().toString(), "PONG[|]" + key);
-            db.userDao().updateUser(username, key);
-
-            KeyStore keyStore;
-            PrivateKey privateKey = null;
-
-            try {
-                keyStore = KeyStore.getInstance("AndroidKeyStore");
-                keyStore.load(null);
-
-                KeyStore.Entry entry = keyStore.getEntry("grace", null);
-
-                privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
-                e.printStackTrace();
-            }
-
-            Log.w("-----", "Auteur[|]"+"PONG[|]" + privateKey);
-            requestCreateMsg(username, "PONG[|]" + "------");
+            privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
+            e.printStackTrace();
         }
+
+        requestCreateMsg(username, "PONG[|]" + "SECURE");
+
+        db.userDao().updateUser(username, "SECURE");
     }
 
 
     public void sendMsg() {
         if (!Objects.equals(editSms.getText().toString(), "")) {
-            /*
-              Sauvegarde Local
-             */
             if (!Objects.equals(res.getText().toString(), "")) {
+                saveLocalNewMsg(res.getText().toString(), editSms.getText().toString(), false, true);
 
-
-                if (lastId.equals("PUBLICKEY")) {
-                    // Alice veut parler à Bob et qu’ils ne se sont jamais parlé
-                    requestCreateMsg(res.getText().toString(), "PING[|]" + "ma cle public");
-
-                } else {
-                    saveLocalNewMsg(lastId, res.getText().toString(), editSms.getText().toString(), false, true);
-
-                    // TODO : send server
-                    requestCreateMsg(res.getText().toString(), editSms.getText().toString());
-                }
-
+                // TODO : send server
+                requestCreateMsg(res.getText().toString(), editSms.getText().toString());
             } else {
                 Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }
-
             editSms.setText("");
         } else {
             Toast.makeText(getContext(), "Message vide " +res.getText().toString(), Toast.LENGTH_LONG).show();
@@ -284,14 +221,13 @@ public class ChatFragment extends Fragment {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void saveLocalNewMsg(String id, String username, String body, boolean alreadyReturned, boolean currentUser) {
+    private void saveLocalNewMsg(String username, String body, boolean alreadyReturned, boolean currentUser) {
 
         @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         String currentDate = dateFormat.format(new Date());
 
 
         Message message = new Message();
-        message.setId(id);
         message.setAuthor(username);
         message.setMessage(body);
         message.setDateCreated(currentDate);
@@ -372,15 +308,6 @@ public class ChatFragment extends Fragment {
                             Log.w("MESSAGES", "*****"+a.getMessage());
                         }
                         adapter.addManyMassage(messages);
-                        assert messages != null;
-                        int nb = adapter.getCount() - 1;
-                        if (nb > 0) {
-                            lastId = messages.get(nb).getId() + "_" + bundle.getString("USERNAME");
-
-                        } else {
-                            // TODO : send public key
-                            lastId = "PUBLICKEY";
-                        }
 
                         //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
                     }
@@ -429,9 +356,7 @@ public class ChatFragment extends Fragment {
                                 String dateCreated = sms.getString("dateCreated");
                                 Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
 
-
                                 //adapter.add(new Message(author, msg, true));
-
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

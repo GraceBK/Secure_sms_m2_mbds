@@ -28,8 +28,8 @@ public interface UserDao {
     @Query("SELECT * FROM User WHERE username = :user")
     User getUser(String user);
 
-    @Query("UPDATE User SET indexToPubKey = :newidPubKey WHERE username = :user")
-    void updateUser(String user, String newidPubKey);
+    @Query("UPDATE User SET indexToPubKey = :newIdPubKey WHERE username = :user")
+    void updateUser(String user, String newIdPubKey);
 
     @Query("SELECT * FROM User")
     LiveData<List<User>> getAll();

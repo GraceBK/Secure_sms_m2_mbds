@@ -132,10 +132,8 @@ public class CreateContactActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("SEND OK", response.toString());
-                        final String key;
 
-                        key = "SEND_PONG";
-                        addNewUser(receiver, key);
+                        addNewUser(receiver, "WAIT_PONG");
                     }
                 },
                 new Response.ErrorListener() {
