@@ -134,26 +134,56 @@ public class ChatFragment extends Fragment {
             Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getIdPubKey(), Toast.LENGTH_LONG).show();
             Log.w("[GRACE]", Objects.requireNonNull(args).getString("USERNAME")+" setIdPubKey = " + t);
 
-            if (tt.getIdPubKey().equals("PING_SEND")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
+            if (tt.getIdPubKey().equals("SEND_PING")) {
+                /* ALICE [PAGE 1] --ping--> BOB [] */
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            if (tt.getIdPubKey().equals("SEND_PONG")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            }
-
-            if (tt.getIdPubKey().equals("PING_RECEIVE")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            }
-
-            if (tt.getIdPubKey().equals("PONG_RECEIVE")) {
+            else if (tt.getIdPubKey().equals("SEND_PING_BIS")) {
+                /* ALICE [PAGE 1 bis] */
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            else if (tt.getIdPubKey().equals("SEND_PONG")) {
+                /* ALICE [PAGE 1 bis] <--pong-- BOB [PAGE 2] */
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
+            }
+
+            /*else if (tt.getIdPubKey().equals("SEND_PONG_BIS") *AND EMPTY*) {
+                * BOB [PAGE 2 bis] *
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.VISIBLE);
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
+
+            }*/ else {
+
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
+
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
 
@@ -170,17 +200,12 @@ public class ChatFragment extends Fragment {
                             // TODO : send public key
                             lastId = "PUBLICKEY";
                         }
-
                         //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
                     }
                 });
-            } else {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
         } catch (Exception e) {
-            Log.e("", ""+e);
+            Log.e("[ERROR onStart]", ""+e);
         }
 
 
@@ -196,14 +221,15 @@ public class ChatFragment extends Fragment {
         final String key;
 
         if (isPingPong) {
-            // TODO : key is my public key
-            key = "MyPublicKey";
+            // TODO : key is my public key (MyPublicKey)
+            key = "SEND_PONG";
             requestCreateMsg(res.getText().toString(), "PING[|]" + key);
-            db.userDao().updateUser(res.getText().toString(),"PING_SEND");
+            db.userDao().updateUser(res.getText().toString(),"SEND_PING_BIS");
         } else {
             // TODO : key is their public key
-            key = "clefAESchiffreeAvecKpA";
+            key = "SEND_PONG_BIS";
             requestCreateMsg(res.getText().toString(), "PONG[|]" + key);
+            db.userDao().updateUser(res.getText().toString(),"SEND_PONG_BIS");
         }
 
         /*new AsyncTask<Void, Void, Void>() {

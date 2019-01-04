@@ -1,12 +1,15 @@
 package fr.mbds.securesms;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,11 +33,14 @@ import java.util.Random;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
+import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
 
-public class SplashScreen extends AppCompatActivity {
+public class SplashScreen extends AppCompatActivity/* implements ServiceConnection */{
 
     private AppDatabase db;
+
+    private MyServiceFetchMessage serviceFetchMessage;
 
     public void fetchSMS() {
         // Instantiate the RequestQueue.
@@ -141,6 +147,14 @@ public class SplashScreen extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         Log.d("[VALIDATE]", response);
+
+                        /*if (serviceFetchMessage != null) {
+                            Toast.makeText(getApplicationContext(), "Je fais un Fetch", Toast.LENGTH_LONG).show();
+                        }*/
+
+                        Intent service = new Intent(SplashScreen.this, MyServiceFetchMessage.class);
+                        startService(service);
+
                         Intent intent = new Intent(SplashScreen.this, MainActivity.class);
                         startActivity(intent);
                         finish();
@@ -194,4 +208,17 @@ public class SplashScreen extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         return view;
     }
+
+    /*@Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        MyServiceFetchMessage.MonBinder monBinder = (MyServiceFetchMessage.MonBinder) iBinder;
+        serviceFetchMessage = monBinder.getService();
+        Toast.makeText(this, "Service connected", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName) {
+        serviceFetchMessage = null;
+        Toast.makeText(this, "Service disconnected", Toast.LENGTH_LONG).show();
+    }*/
 }

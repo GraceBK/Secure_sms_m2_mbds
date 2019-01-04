@@ -48,18 +48,26 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
         myViewHolder.firstLetterName.setTextColor(Color.argb(alpha, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
         myViewHolder.firstLetterName.setText(user.getUsername().substring(0, 1).toUpperCase());
 
-        if (user.getIdPubKey().equals("PING")) {
+        if (user.getIdPubKey().equals("SEND_PING")) {
+            /* ALICE [PAGE 1] --ping--> BOB [] */
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
             myViewHolder.shortResume.setText("Envoyer votre cle public");
-        } else if (user.getIdPubKey().equals("PING_SEND")) {
+
+        } else if (user.getIdPubKey().equals("SEND_PING_BIS")) {
+            /* ALICE [PAGE 1 bis] */
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
-            myViewHolder.shortResume.setText("Cle public envoye");
-        } else if (user.getIdPubKey().equals("PONG_SEND")) {
+            myViewHolder.shortResume.setText("Cle public envoyé");
+
+        } else if (user.getIdPubKey().equals("SEND_PONG")) {
+            /* ALICE [PAGE 1 bis] <--pong-- BOB [PAGE 2] */
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
+            myViewHolder.shortResume.setText("Envoyer votre cle");
+
+        } else if (user.getIdPubKey().equals("SEND_PONG_BIS")) {
+            /* ALICE [PAGE 2 bis] ---- BOB [PAGE 2 bis] */
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
             myViewHolder.shortResume.setText("");
-        } else if (user.getIdPubKey().equals("PING_RECEIVE")) {
-            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
-            myViewHolder.shortResume.setText("");
+
         } else {// PONG_RECEIVE
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock);
             myViewHolder.shortResume.setText("Chat secure");

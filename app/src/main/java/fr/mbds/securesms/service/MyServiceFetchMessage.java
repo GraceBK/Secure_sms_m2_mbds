@@ -1,17 +1,24 @@
-package fr.mbds.securesms;
+package fr.mbds.securesms.service;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,25 +36,113 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import fr.mbds.securesms.MainActivity;
+import fr.mbds.securesms.R;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
-import fr.mbds.securesms.fragments.ChatFragment;
-import fr.mbds.securesms.fragments.ListContactFragment;
 import fr.mbds.securesms.utils.MyURL;
+import fr.mbds.securesms.view_model.MyViewModelFactory;
 
-public class MainActivity extends FragmentActivity implements ListContactFragment.InterfaceClickListener {
+public class MyServiceFetchMessage extends Service {
+
+    // Attribut de typr IBinder
+    private final IBinder iBinder = new MonBinder();
+    // Le service en lui-meme
+    private MyServiceFetchMessage serviceFetchMessage;
+    private NotificationManager notificationManager;
+
+    private AppDatabase db/* = AppDatabase.getDatabase(getApplicationContext())*/;
+
+    private final int tempsMax = 180000;    // 3 min (180000 ms)
+
+    private Handler handler = new Handler();
+
+    private Runnable runnable = new Runnable() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void run() {
+            // Code a executer de facon periodique
+            //fetchSMS();
+            Toast.makeText(getApplicationContext(), "FETCH", Toast.LENGTH_SHORT).show();
+
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), "notify_channel_id");
+
+            NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+
+            notification.setContentIntent(pendingIntent)
+                    .setSmallIcon(R.drawable.ic_stat_name)
+                    .setContentTitle(getText(R.string.notification_title))
+                    .setContentText(getText(R.string.notification_message))
+                    .setTicker(getText(R.string.ticker_text))
+                    .setPriority(Notification.PRIORITY_MAX);
+
+            notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                String channelId = "0001";
+                NotificationChannel channel = new NotificationChannel(channelId, "Test", NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channel);
+                notification.setChannelId(channelId);
+            }
+
+            notificationManager.notify(0, notification.build());
+            
+            handler.postDelayed(this, 5000);
+        }
+    };
 
 
-    private AppDatabase db;
+    // Interface de connexion au service
+    private ServiceConnection connection = new ServiceConnection() {
+        // Se declenche quand l'activite se connecte au service
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            serviceFetchMessage = ((MyServiceFetchMessage.MonBinder) iBinder).getService();
+            Toast.makeText(getApplicationContext(), "Service connected", Toast.LENGTH_SHORT).show();
+        }
+        // Se declanche des que le service est deconnecte
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            serviceFetchMessage = null;
+            Toast.makeText(getApplicationContext(), "Service disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
 
-    FrameLayout fl_list;
-    FrameLayout fl_chat;
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(getApplicationContext(), "Service starting", Toast.LENGTH_SHORT).show();
+        // Si le service est tué, recommencez
+        return START_STICKY;
+    }
 
-    ChatFragment chatFragment = new ChatFragment();
-    ListContactFragment listContactFragment = new ListContactFragment();
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        handler.postDelayed(runnable, 5000); // On redemande toute les 3 min
+        //bindService(new Intent(this, MyServiceFetchMessage.class), connection, BIND_AUTO_CREATE);
+        Toast.makeText(getApplicationContext(), "Service Create", Toast.LENGTH_SHORT).show();
+    }
 
-    boolean a = true;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(getApplicationContext(), "Service Destroy", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        /*fetchSMS();
+        return iBinder;*/
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+
+
+
+
 
 
 
@@ -176,151 +271,24 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
 
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        db = AppDatabase.getDatabase(getApplicationContext());
 
-        //fetchSMS();
 
-        Log.i("MainActivity", "Chargement des messages");
-        // TODO : Faire de tel sorte que le chargement de nouveau message ne puisse pas bloquer l'affichage
-        // l'idee serait d'utiliser des AsyncTask
 
-        // Get intent, action and MIME type
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
 
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
-                handleSendText(intent); // Handle text being sent
-            }
+
+
+
+
+
+
+
+    /**
+     * Le Binder est représenté par une classe interne
+     */
+    public class MonBinder extends Binder {
+        // Le Binder possède une méthode pour renvoyer le Service
+        public MyServiceFetchMessage getService() {
+            return MyServiceFetchMessage.this;
         }
-
-        setContentView(R.layout.activity_main);
-        fl_list = findViewById(R.id.main_fl_list);
-        fl_chat = findViewById(R.id.main_fl_viewer);
-
-        if (findViewById(R.id.main_fl_list) != null) {
-//            Toast.makeText(this, ""+ savedInstanceState, Toast.LENGTH_SHORT).show();
-        }
-
-        /*if (savedInstanceState == null) {
-            ListContactFragment listContactFragment1 = new ListContactFragment();
-            listContactFragment1.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction().add(fl_list.getId(), chatFragment);
-        }*/
-
-        updateDisplay();
-
-    }
-
-    private void updateDisplay() {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            //setupFullScreenMode();
-            fragmentTransaction.replace(fl_list.getId(), listContactFragment);
-            fragmentTransaction.replace(fl_chat.getId(), chatFragment);
-            fragmentTransaction.detach(chatFragment).attach(chatFragment);
-        } else {
-            if (!listContactFragment.isSwipe()) {
-                fragmentTransaction.replace(fl_list.getId(), listContactFragment);
-            } else {
-                fragmentTransaction.replace(fl_list.getId(), chatFragment);
-            }
-//            hideSystemUI();
-        }
-        fragmentTransaction.commit();
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //updateDisplay();
-        getSupportFragmentManager().beginTransaction().detach(listContactFragment).attach(listContactFragment).commit();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getSupportFragmentManager().beginTransaction().detach(listContactFragment).attach(listContactFragment).commit();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            getSupportFragmentManager().beginTransaction().remove(chatFragment).commit();
-        }*/
-
-        // Checks the orientation of the screen
-        // updateDisplay();
-    }
-
-
-    void handleSendText(Intent intent) {
-        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        if (sharedText != null) {
-            // TODO : Update UI to reflect text being shared
-            Log.e("SHARE TEXT", ""+sharedText);
-        }
-    }
-
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUI();
-        }
-    }
-
-    private void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        // | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-
-    @Override
-    public void transferData(Bundle bundle) {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            chatFragment.setArguments(bundle);
-        }
-
-        if (chatFragment != null) {
-            chatFragment.changeDataPropriete(bundle);
-        }
-    }
-
-    @Override
-    public void clickItem(boolean click) {
-        updateDisplay();
-    }
-
-    @Override
-    public void onBackPressed() {
-        boolean clickBack1 = listContactFragment.isSwipe();
-        listContactFragment.setSwipe(false);
-        boolean clickBack2 = listContactFragment.isSwipe();
-        // (!A and !B) = !(A or B)
-        if (!(clickBack1 || clickBack2)) {
-            super.onBackPressed();
-            finish();
-        }
-        updateDisplay();
     }
 }

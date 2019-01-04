@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fr.mbds.securesms.proxy_for_emulator.ProxyHurlStack;
+import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
 
 public class LoginActivity extends AppCompatActivity {
@@ -89,6 +90,12 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+
+                        Intent service = new Intent(LoginActivity.this, MyServiceFetchMessage.class);
+                        startService(service);
+
+
                         Intent goToMain = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(goToMain);
                         finish();

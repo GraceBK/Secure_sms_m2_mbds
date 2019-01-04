@@ -18,7 +18,7 @@ public class User {
     private String thumbnail;
 
     @ColumnInfo(name = "indexToPubKey")
-    private String idPubKey = "PING";
+    private String idPubKey = "SEND_PING";
 
 
     public String getUsername() {

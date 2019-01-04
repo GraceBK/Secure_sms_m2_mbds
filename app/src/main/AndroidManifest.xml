@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    package="fr.mbds.securesms"
     android:versionCode="1"
     android:versionName="1.0"
-    tools:ignore="GradleOverrides"
-    package="fr.mbds.securesms">
+    tools:ignore="GradleOverrides">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -18,16 +17,15 @@
     tools:targetApi="m"
     -->
     <application
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CustomByGraceBK"
+        android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
-
         <activity
             android:name=".SplashScreen"
             android:screenOrientation="portrait"
@@ -38,7 +36,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:theme="@style/CustomByGraceBK">
@@ -58,21 +55,23 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CustomByGraceBK" />
-
         <activity
             android:name=".RegisterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CustomByGraceBK" />
-
         <activity
             android:name=".CreateContactActivity"
             android:label="@string/title_activity_create_contact"
             android:theme="@style/CustomByGraceBK" />
+
+        <service
+            android:name=".service.MyServiceFetchMessage"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>
