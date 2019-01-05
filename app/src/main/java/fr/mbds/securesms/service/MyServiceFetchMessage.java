@@ -11,15 +11,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Vibrator;
-import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -46,12 +41,11 @@ import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
 import fr.mbds.securesms.utils.MyURL;
-import fr.mbds.securesms.view_model.MyViewModelFactory;
 
 public class MyServiceFetchMessage extends Service {
 
     // Attribut de typr IBinder
-    private final IBinder iBinder = new MonBinder();
+    //private final IBinder iBinder = new MonBinder();
     // Le service en lui-meme
     private MyServiceFetchMessage serviceFetchMessage;
     private NotificationManager notificationManager;
@@ -63,14 +57,13 @@ public class MyServiceFetchMessage extends Service {
     private Handler handler;
 
     private Runnable runnable = new Runnable() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run() {
             // Code a executer de facon periodique
-
+            Toast.makeText(getApplicationContext(), "Le service est toujours en cours d'exécution", Toast.LENGTH_SHORT).show();
             fetchSMS();
 
-            handler.postDelayed(this, 5000);
+            handler.postDelayed(runnable, 5000);
         }
     };
 
@@ -113,7 +106,7 @@ public class MyServiceFetchMessage extends Service {
         // Se declenche quand l'activite se connecte au service
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            serviceFetchMessage = ((MyServiceFetchMessage.MonBinder) iBinder).getService();
+            //serviceFetchMessage = ((MyServiceFetchMessage.MonBinder) iBinder).getService();
             Toast.makeText(getApplicationContext(), "Service connected", Toast.LENGTH_SHORT).show();
         }
         // Se declanche des que le service est deconnecte
@@ -126,32 +119,38 @@ public class MyServiceFetchMessage extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(getApplicationContext(), "Service starting", Toast.LENGTH_SHORT).show();
-        handler = new Handler();
-        handler.post(runnable); // On redemande toute les 3 min
+        super.onStartCommand(intent, flags, startId);
+
+        Toast.makeText(this, "Service starting", Toast.LENGTH_SHORT).show();
+        //handler = new Handler();
+        //handler.postDelayed(runnable, DEFAULT_SYNC_INTERVAL); // On redemande toute les 3 min
         // Si le service est tué, recommencez
         return START_STICKY;
     }
 
-    /*@Override
+    @Override
     public void onCreate() {
         super.onCreate();
-        handler.postDelayed(runnable, DEFAULT_SYNC_INTERVAL); // On redemande toute les 3 min
-        //bindService(new Intent(this, MyServiceFetchMessage.class), connection, BIND_AUTO_CREATE);
-        Toast.makeText(getApplicationContext(), "Service Create", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Service created!", Toast.LENGTH_SHORT).show();
+
+        handler = new Handler();
+        handler.postDelayed(runnable, 10000);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(getApplicationContext(), "Service Destroy", Toast.LENGTH_SHORT).show();
-    }*/
+        Log.i("[EXIT]", "Destroy Service");
+        Toast.makeText(this, "Service destroy", Toast.LENGTH_SHORT).show();
+        /*Intent broadcastIntent = new Intent(this, MyServiceFetchMessage.class);
+        sendBroadcast(broadcastIntent);*/
+    }
+
+
 
     @Override
     public IBinder onBind(Intent intent) {
-        /*fetchSMS();
-        return iBinder;*/
-        throw new UnsupportedOperationException("Not yet implemented");
+        return null;
     }
 
 
@@ -163,8 +162,7 @@ public class MyServiceFetchMessage extends Service {
 
 
     public void fetchSMS() {
-        Toast.makeText(getApplicationContext(), "FETCH", Toast.LENGTH_SHORT).show();
-        Log.d("[FETCH]", "-----> FETCH");
+        Log.i("[FETCH]", "-----> FETCH");
         db = AppDatabase.getDatabase(getApplicationContext());
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -320,10 +318,10 @@ public class MyServiceFetchMessage extends Service {
     /**
      * Le Binder est représenté par une classe interne
      */
-    public class MonBinder extends Binder {
+    /*public class MonBinder extends Binder {
         // Le Binder possède une méthode pour renvoyer le Service
         public MyServiceFetchMessage getService() {
             return MyServiceFetchMessage.this;
         }
-    }
+    }*/
 }

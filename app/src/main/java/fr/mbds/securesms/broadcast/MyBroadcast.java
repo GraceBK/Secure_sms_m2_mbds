@@ -16,6 +16,11 @@ public class MyBroadcast extends BroadcastReceiver {
 
             Intent intent1 = new Intent(context, MyServiceFetchMessage.class);
             context.startService(intent1);
+        } else {
+            Log.i(MyBroadcast.class.getSimpleName(), "Service Start");
+
+            Intent intent1 = new Intent(context, MyServiceFetchMessage.class);
+            context.startService(intent1);
         }
     }
 }
