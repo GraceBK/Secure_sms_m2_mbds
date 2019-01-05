@@ -9,7 +9,7 @@ public enum MyURL {
     IS_VALID_TOKEN ("/api/validate");
 
     private String url;
-    private final String host = "http://baobab.tokidev.fr";
+    private final String HOST = "http://baobab.tokidev.fr";
 
     MyURL(String url) {
         this.url = url;
@@ -17,6 +17,6 @@ public enum MyURL {
 
     @Override
     public String toString() {
-        return this.host + "" + url;
+        return this.HOST + "" + url;
     }
 }

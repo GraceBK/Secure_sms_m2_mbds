@@ -14,7 +14,7 @@ public class MessageViewModel extends AndroidViewModel {
 
     private LiveData<List<Message>> messageList;
 
-    public MessageViewModel(@NonNull Application application, final String username) {
+    MessageViewModel(@NonNull Application application, final String username) {
         super(application);
 
         AppDatabase db = AppDatabase.getDatabase(this.getApplication());

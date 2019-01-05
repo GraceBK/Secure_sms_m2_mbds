@@ -91,7 +91,7 @@ public class CreateContactActivity extends AppCompatActivity {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void addNewUser(String username, String key) {
+    private void addNewUser(String username) {
         Random rand = new Random();
         int r = rand.nextInt(255);
         int g = rand.nextInt(255);
@@ -100,7 +100,7 @@ public class CreateContactActivity extends AppCompatActivity {
         User user = new User();
         user.setUsername(username.replaceAll("\\s+$", ""));
         user.setThumbnail(r + "-" + g + "-" + b);
-        user.setIdPubKey(key);
+        user.setIdPubKey("WAIT_PONG");
 
         new AsyncTask<User, Void, Void>() {
             @Override
@@ -133,7 +133,7 @@ public class CreateContactActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         Log.i("SEND OK", response.toString());
 
-                        addNewUser(receiver, "WAIT_PONG");
+                        addNewUser(receiver);
                     }
                 },
                 new Response.ErrorListener() {

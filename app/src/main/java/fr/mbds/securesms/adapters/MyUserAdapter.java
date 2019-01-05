@@ -88,12 +88,12 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public LinearLayout linearLayout;
+        LinearLayout linearLayout;
         public TextView username;
-        public TextView shortResume;
-        public ImageView thumbnail;
-        public TextView firstLetterName;
-        public ImageView imgSecure;
+        TextView shortResume;
+        ImageView thumbnail;
+        TextView firstLetterName;
+        ImageView imgSecure;
 
         MyViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -104,13 +104,6 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
             firstLetterName = itemView.findViewById(R.id.item_list_img_txt);
             imgSecure = itemView.findViewById(R.id.id_sms_is_secure);
             shortResume = itemView.findViewById(R.id.item_list_resume);
-
-            /*linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(itemView.getContext(), "COUCOU "+username.getText().toString(), Toast.LENGTH_SHORT).show();
-                }
-            });*/
         }
     }
 

@@ -209,9 +209,9 @@ public class ListContactFragment extends Fragment {
 
 
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
-        public void onLongClick(View view, int position);
+    public interface ClickListener {
+        void onClick(View view, int position);
+        void onLongClick(View view, int position);
     }
 
 
@@ -221,7 +221,7 @@ public class ListContactFragment extends Fragment {
         private ClickListener clickListener;
         private GestureDetector gestureDetector;
 
-        public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
+        RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,7 +10,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/app_bar_loyout"
@@ -42,27 +44,6 @@
             android:layout_below="@+id/app_bar_loyout"
             android:paddingBottom="70dp"
             android:clipToPadding="false"/>
-
-        <!--LinearLayout
-            android:id="@+id/list_contact_rcA"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/fab_margin">
-
-            <EditText
-                android:id="@+id/text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/app_name"/>
-
-            <Button
-                android:id="@+id/send"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="send"/>
-
-        </LinearLayout-->
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"

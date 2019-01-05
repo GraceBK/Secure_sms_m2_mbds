@@ -2,17 +2,16 @@ package fr.mbds.securesms.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
+// @Entity(foreignKeys = @ForeignKey(entity = User.class,
+//                           parentColumns = "uid",
+//                            childColumns = "userKey",
+//                                onDelete = CASCADE),
+//        indices = {@Index(value = "id_msg", unique = true)})
 
-@Entity(foreignKeys = @ForeignKey(entity = User.class,
-                           parentColumns = "uid",
-                            childColumns = "userKey",
-                                onDelete = CASCADE),
-        indices = {@Index(value = "id_msg", unique = true)})
+@Entity(indices = {@Index(value = "id_msg", unique = true)})
 public class Message {
     @PrimaryKey(autoGenerate = true)
     int uid;

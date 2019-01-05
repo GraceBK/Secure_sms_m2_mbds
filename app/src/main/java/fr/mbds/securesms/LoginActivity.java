@@ -4,9 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +23,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fr.mbds.securesms.proxy_for_emulator.ProxyHurlStack;
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
 
@@ -135,7 +133,5 @@ public class LoginActivity extends AppCompatActivity {
         et_password = findViewById(R.id.login_et_password);
         tv_create = findViewById(R.id.login_tv_create_account);
         btn_login = findViewById(R.id.login_btn_login);
-        et_username.setText("username1");
-        et_password.setText("password");
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:textColor="#424345"
-                android:text="Show message..." />
+                android:text="@string/message" />
 
         </LinearLayout>
 
@@ -37,9 +38,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/grayDark2"
             android:paddingStart="22dp"
-            android:text="Date et heure"
+            android:text="@string/time"
             android:textSize="11sp"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="RtlSymmetry,SmallSp" />
 
     </LinearLayout>
 

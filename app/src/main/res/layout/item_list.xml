@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,10 +16,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:baselineAligned="false">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_weight="2">
@@ -31,7 +36,8 @@
                     android:id="@+id/item_list_img"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="#000"/>
+                    android:background="#000"
+                    android:contentDescription="@string/profile_img" />
 
                 <TextView
                     android:id="@+id/item_list_img_txt"
@@ -41,7 +47,7 @@
                     android:textSize="30sp"
                     android:textColor="@color/white1"
                     android:textStyle="bold"
-                    android:text="G"
+                    android:text="@string/img"
                     android:fontFamily="@font/letter_img"/>
 
             </RelativeLayout>
@@ -59,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/grayDark1"
                     android:textStyle="bold"
-                    android:text="Username"
+                    android:text="@string/username"
                     android:fontFamily="@font/username_font"/>
 
                 <TextView
@@ -67,9 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/grayDark2"
-                    android:textSize="11sp"
-                    android:text="Show resume message..."
-                    android:autoSizeTextType="none"/>
+                    android:text="@string/state"/>
 
             </LinearLayout>
 
@@ -83,7 +87,8 @@
                 android:id="@+id/id_sms_is_secure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_lock_open" />
+                android:src="@drawable/ic_lock_open"
+                android:contentDescription="@string/state_secure"/>
 
         </RelativeLayout>
 

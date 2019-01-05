@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -18,19 +19,15 @@
             android:id="@+id/create_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username" />
+            android:hint="@string/username"
+            tools:ignore="Autofill,TextFields" />
 
         <Button
             android:id="@+id/fab_create"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Add user" />
-
-        <!--EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mail"/-->
+            android:text="@string/add_user" />
 
     </LinearLayout>
 

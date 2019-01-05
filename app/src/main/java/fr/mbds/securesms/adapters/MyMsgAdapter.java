@@ -2,7 +2,6 @@ package fr.mbds.securesms.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,8 @@ import fr.mbds.securesms.db.room_db.Message;
 
 public class MyMsgAdapter extends BaseAdapter {
 
-    List<Message> messages = new ArrayList<>();
-    Context context;
+    private List<Message> messages = new ArrayList<>();
+    private Context context;
 
     public MyMsgAdapter(Context context) {
         this.context = context;
@@ -32,10 +31,6 @@ public class MyMsgAdapter extends BaseAdapter {
     public void addManyMassage(List<Message> messages) {
         this.messages = messages;
         notifyDataSetChanged();
-    }
-
-    public void clear() {
-        this.messages.clear();
     }
 
     @Override
@@ -60,21 +55,20 @@ public class MyMsgAdapter extends BaseAdapter {
         Message message = messages.get(i);
 
         if (message.isCurrentUser()) {
-            view = inflater.inflate(R.layout.item_my_sms, null);
+            view = inflater.inflate(R.layout.item_my_sms, viewGroup, false);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
             holder.messageDate = view.findViewById(R.id.item_msg_date);
             view.setTag(holder);
             holder.messageBody.setText(message.getMessage());
             holder.messageDate.setText(message.getDateCreated());
         } else {
-            view = inflater.inflate(R.layout.item_their_sms, null);
+            view = inflater.inflate(R.layout.item_their_sms, viewGroup, false);
             holder.messageBody = view.findViewById(R.id.item_msg_body);
             holder.messageDate = view.findViewById(R.id.item_msg_date);
             view.setTag(holder);
 
             holder.messageBody.setText(message.getMessage());
             holder.messageDate.setText(message.getDateCreated());
-
         }
 
         return view;
@@ -82,8 +76,7 @@ public class MyMsgAdapter extends BaseAdapter {
 
 
     class MessageViewHolder {
-        public TextView username;
-        public TextView messageBody;
-        public TextView messageDate;
+        TextView messageBody;
+        TextView messageDate;
     }
 }

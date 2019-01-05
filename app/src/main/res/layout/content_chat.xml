@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -28,7 +29,7 @@
                     android:textStyle="bold"
                     android:textSize="15sp"
                     android:textAlignment="center"
-                    android:text="Nom User"/>
+                    android:text="@string/username"/>
 
             </android.support.v7.widget.Toolbar>
 
@@ -43,31 +44,6 @@
             android:layout_below="@+id/app_bar_loyout2"
             android:weightSum="12"
             android:padding="5dp">
-
-            <!-- [PAGE 1] Si pas de message (envoyer PING) -->
-            <!--LinearLayout
-                android:id="@+id/chat_ping"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <fr.mbds.securesms.utils.CustomTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="40sp"
-                    android:textAlignment="center"
-                    android:text="Envoyer PING"/>
-
-                <Button
-                    android:id="@+id/btn_ping"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SEND PING"/>
-
-            </LinearLayout-->
 
             <!-- [PAGE 1 bis] Si PING SEND (attent PONG) -->
             <LinearLayout
@@ -84,7 +60,7 @@
                     android:textStyle="bold"
                     android:textSize="40sp"
                     android:textAlignment="center"
-                    android:text="ATTENT PONG"/>
+                    android:text="@string/wait_pong"/>
 
             </LinearLayout>
 
@@ -103,13 +79,13 @@
                     android:textStyle="bold"
                     android:textSize="40sp"
                     android:textAlignment="center"
-                    android:text="Envoyer PONG"/>
+                    android:text="@string/envoyer_pong"/>
 
                 <Button
                     android:id="@+id/btn_pong"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SEND PONG"/>
+                    android:text="@string/send_pong"/>
 
             </LinearLayout>
 
@@ -128,7 +104,7 @@
                     android:textStyle="bold"
                     android:textSize="40sp"
                     android:textAlignment="center"
-                    android:text="SECURE SMS"/>
+                    android:text="@string/secure_sms"/>
 
             </LinearLayout>
 
@@ -169,12 +145,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="Saisir le message"
+                android:hint="@string/write_message"
                 android:inputType="textMultiLine"
                 android:paddingTop="10dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:paddingBottom="10dp" />
+                android:paddingBottom="10dp"
+                tools:ignore="Autofill" />
 
             <Button
                 android:id="@+id/btn_send_msg"
@@ -184,7 +161,7 @@
                 android:layout_weight="0"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="SEND" />
+                android:text="@string/send" />
 
         </LinearLayout>
 

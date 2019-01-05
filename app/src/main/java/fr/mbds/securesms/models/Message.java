@@ -22,7 +22,7 @@ public class Message {
         this.username = username;
     }
 
-    public String getResume() {
+    private String getResume() {
         return resume;
     }
 

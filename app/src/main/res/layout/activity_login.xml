@@ -41,7 +41,8 @@
                 android:layout_marginVertical="10dp"
                 android:hint="@string/username"
                 android:inputType="textEmailAddress"
-                tools:targetApi="o" />
+                tools:targetApi="o"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/login_et_password"
@@ -50,7 +51,8 @@
                 android:layout_marginVertical="10dp"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                tools:targetApi="o" />
+                tools:targetApi="o"
+                tools:ignore="Autofill" />
 
             <Button
                 android:id="@+id/login_btn_login"

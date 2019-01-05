@@ -37,7 +37,4 @@ public interface UserDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertUser(User... users);
 
-    @Query("DELETE FROM User")
-    void delete();
-
 }

@@ -24,11 +24,9 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -95,12 +93,6 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        /*btnSendPing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendPingPong(res.getText().toString(), true);
-            }
-        });*/
         btnSendPong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -397,6 +389,7 @@ public class ChatFragment extends Fragment {
 
 
 
+    /*
     public void requestGetSMS() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getContext());
@@ -443,5 +436,6 @@ public class ChatFragment extends Fragment {
         };
         queue.add(arrayRequest);
     }
+    */
 
 }
