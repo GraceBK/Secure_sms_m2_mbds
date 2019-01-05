@@ -73,15 +73,15 @@
         <service
             android:name=".service.MyServiceFetchMessage"
             android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"/>
+            android:exported="true"/>
 
         <receiver
             android:name=".broadcast.MyBroadcast"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <!--action android:name="android.intent.action.BOOT_COMPLETED"/-->
+                <action android:name="fr.mbds.securesms.FETCH"/>
             </intent-filter>
         </receiver>
     </application>

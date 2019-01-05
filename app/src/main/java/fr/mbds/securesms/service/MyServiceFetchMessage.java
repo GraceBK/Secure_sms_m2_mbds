@@ -47,7 +47,6 @@ public class MyServiceFetchMessage extends Service {
     // Attribut de typr IBinder
     //private final IBinder iBinder = new MonBinder();
     // Le service en lui-meme
-    private MyServiceFetchMessage serviceFetchMessage;
     private NotificationManager notificationManager;
 
     private AppDatabase db;
@@ -101,22 +100,6 @@ public class MyServiceFetchMessage extends Service {
     }
 
 
-    // Interface de connexion au service
-    private ServiceConnection connection = new ServiceConnection() {
-        // Se declenche quand l'activite se connecte au service
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            //serviceFetchMessage = ((MyServiceFetchMessage.MonBinder) iBinder).getService();
-            Toast.makeText(getApplicationContext(), "Service connected", Toast.LENGTH_SHORT).show();
-        }
-        // Se declanche des que le service est deconnecte
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            serviceFetchMessage = null;
-            Toast.makeText(getApplicationContext(), "Service disconnected", Toast.LENGTH_SHORT).show();
-        }
-    };
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -140,8 +123,8 @@ public class MyServiceFetchMessage extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("[EXIT]", "Destroy Service");
-        Toast.makeText(this, "Service destroy", Toast.LENGTH_SHORT).show();
+        Log.i("[EXIT]", "Service done");
+        Toast.makeText(this, "Service done", Toast.LENGTH_SHORT).show();
         /*Intent broadcastIntent = new Intent(this, MyServiceFetchMessage.class);
         sendBroadcast(broadcastIntent);*/
     }
@@ -298,30 +281,4 @@ public class MyServiceFetchMessage extends Service {
         }.execute(message);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Le Binder est représenté par une classe interne
-     */
-    /*public class MonBinder extends Binder {
-        // Le Binder possède une méthode pour renvoyer le Service
-        public MyServiceFetchMessage getService() {
-            return MyServiceFetchMessage.this;
-        }
-    }*/
 }
