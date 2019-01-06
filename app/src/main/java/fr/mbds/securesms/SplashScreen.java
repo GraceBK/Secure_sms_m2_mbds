@@ -31,29 +31,23 @@ import java.util.Map;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
 
-public class SplashScreen extends AppCompatActivity/* implements ServiceConnection */{
-
-    private AppDatabase db;
-
-    private MyServiceFetchMessage serviceFetchMessage;
+public class SplashScreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupFullScreenMode();
-//        db = AppDatabase.getDatabase(getApplicationContext());
         setContentView(R.layout.activity_splash_screen);
 
         final SharedPreferences preferences = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.apply();
 
-        Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
-        Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
+        // Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
+        // Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
 
         KeyPairGenerator keyPairGenerator;
 
@@ -66,12 +60,13 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
 
         KeyGenerator keyGenerator;
         KeyGenParameterSpec.Builder builder2;
-        SecretKey secretKey;
+        SecretKey secretKey = null;
 
 
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
             builder = new KeyGenParameterSpec.Builder("alice", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setKeySize(2048)
                     .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
             try {
@@ -79,28 +74,32 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
             } catch (InvalidAlgorithmParameterException e) {
                 e.printStackTrace();
             }
-            //keyPairGenerator.initialize(2048);
-
-
             keyPair = keyPairGenerator.genKeyPair();
-
             publicKey = keyPair.getPublic();
             privateKey = keyPair.getPrivate();
 
+
             keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
-            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
+            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setKeySize(256)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            try {
+                keyGenerator.init(builder2.build());
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
             secretKey = keyGenerator.generateKey();
 
             //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             e.printStackTrace();
-        }/* catch ( InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-        }*/
+        }
 
-        Log.w("[public]", "-------------" + publicKey);
-        Log.w("[privee]", "-------------" + privateKey);
+        Log.w("[RSA public]", "-------------" + publicKey);
+        Log.w("[RSA privee]", "-------------" + privateKey);
+        Log.w("[AES]", "-------------" + secretKey);
 
         int SPLASH_TIME_OUT = 1000;
         new Handler().postDelayed(new Runnable() {
@@ -121,10 +120,6 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
                     @Override
                     public void onResponse(String response) {
                         Log.d("[VALIDATE]", response);
-
-                        /*if (serviceFetchMessage != null) {
-                            Toast.makeText(getApplicationContext(), "Je fais un Fetch", Toast.LENGTH_LONG).show();
-                        }*/
 
                         Intent service = new Intent(SplashScreen.this, MyServiceFetchMessage.class);
                         startService(service);

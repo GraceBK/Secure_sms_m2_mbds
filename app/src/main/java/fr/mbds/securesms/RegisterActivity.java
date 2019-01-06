@@ -85,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.i("[REGISTER]", response.toString());
                         createKey(username);
                         // TODO : Save current state (is connect) in SharePreference
-                        Intent goToMain = new Intent(RegisterActivity.this, MainActivity.class);
+                        Intent goToMain = new Intent(RegisterActivity.this, SplashScreen.class);
                         startActivity(goToMain);
                         finish();
                     }
@@ -141,9 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             e.printStackTrace();
-        }/* catch ( InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-        }*/
+        }
 
         Log.w("[public]", "-------------" + publicKey);
         Log.w("[privee]", "-------------" + privateKey);

@@ -7,8 +7,8 @@
     tools:ignore="GradleOverrides">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!--
     ERROR : com.android.volley.NoConnectionError: java.io.IOException: Cleartext HTTP traffic to baobab.tokidev.fr not permitted
@@ -73,17 +73,20 @@
         <service
             android:name=".service.MyServiceFetchMessage"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <receiver
             android:name=".broadcast.MyBroadcast"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <!--action android:name="android.intent.action.BOOT_COMPLETED"/-->
-                <action android:name="fr.mbds.securesms.FETCH"/>
+
+                <!-- action android:name="android.intent.action.BOOT_COMPLETED"/ -->
+                <action android:name="fr.mbds.securesms.FETCH" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".ConfirmationActivity"></activity>
     </application>
 
 </manifest>
