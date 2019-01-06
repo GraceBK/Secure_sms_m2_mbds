@@ -35,6 +35,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
@@ -44,6 +46,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
@@ -96,7 +103,11 @@ public class ChatFragment extends Fragment {
         btnSendPong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendPong(res.getText().toString());
+                try {
+                    sendPong(res.getText().toString());
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -174,25 +185,71 @@ public class ChatFragment extends Fragment {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void sendPong(final String username) {
+    public void sendPong(final String username) throws NoSuchAlgorithmException {
+        final PublicKey publicKey;
+        final KeyStore keyStore;
+        final KeyStore.Entry entry;
+        final String[] uname = new String[1];
+        String crypt;
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
 
-        KeyStore keyStore;
-        PrivateKey privateKey = null;
+                uname[0] = String.valueOf(db.userDao().getUser(username).getUsername());
+                return null;
+            }
+        }.execute();
 
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
+            entry = keyStore.getEntry(uname[0], null);
+            publicKey = keyStore.getCertificate(uname[0]).getPublicKey();
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(256); // for example
+            SecretKey secretKey = keyGen.generateKey();
 
-            KeyStore.Entry entry = keyStore.getEntry("grace", null);
+            try {
+                crypt = String.valueOf(encryptAES(publicKey.getEncoded().toString(), secretKey.getEncoded().toString()));
+                requestCreateMsg(username, "PONG[|]" + crypt);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
             e.printStackTrace();
         }
 
-        requestCreateMsg(username, "PONG[|]" + "clefAESchiffreeAvecKpA");
-
         db.userDao().updateUser(username, "SECURE");
+    }
+
+    private static int BLOCKS = 128;
+
+    public static byte[] encryptAES(String seed, String cleartext)
+            throws Exception {
+        byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
+        SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+        return cipher.doFinal(cleartext.getBytes("UTF8"));
+    }
+
+    private static byte[] getRawKey(byte[] seed) throws Exception {
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        sr.setSeed(seed);
+        kgen.init(BLOCKS, sr); // 192 and 256 bits may not be available
+        SecretKey skey = kgen.generateKey();
+        byte[] raw = skey.getEncoded();
+        return raw;
     }
 
 
