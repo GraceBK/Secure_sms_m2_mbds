@@ -186,7 +186,7 @@ public class ChatFragment extends Fragment {
 
     @SuppressLint("StaticFieldLeak")
     public void sendPong(final String username) throws NoSuchAlgorithmException {
-        final PublicKey publicKey;
+        final String[] publicKey = new String[1];
         final KeyStore keyStore;
         final KeyStore.Entry entry;
         final String[] uname = new String[1];
@@ -195,38 +195,48 @@ public class ChatFragment extends Fragment {
             @Override
             protected Void doInBackground(Void... voids) {
 
-                uname[0] = String.valueOf(db.userDao().getUser(username).getUsername());
+                publicKey[0] = db.userDao().getUser(username).getPubKey();
                 return null;
             }
         }.execute();
 
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256); // for example
+        SecretKey secretKey = keyGen.generateKey();
+        db.userDao().updateAES(username, secretKey.getEncoded().toString());
+
         try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore.load(null);
-            entry = keyStore.getEntry(uname[0], null);
-            publicKey = keyStore.getCertificate(uname[0]).getPublicKey();
-            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(256); // for example
-            SecretKey secretKey = keyGen.generateKey();
-
-            try {
-                crypt = String.valueOf(encryptAES(publicKey.getEncoded().toString(), secretKey.getEncoded().toString()));
-                requestCreateMsg(username, "PONG[|]" + crypt);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
+            crypt = String.valueOf(encryptAES(String.valueOf(publicKey), secretKey.getEncoded().toString()));
+            requestCreateMsg(username, "PONG[|]" + crypt);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+//
+//        try {
+//            keyStore = KeyStore.getInstance("AndroidKeyStore");
+//            keyStore.load(null);
+//            keyStore.getCertificate(uname[0]).getPublicKey();
+//            publicKey = keyStore.getCertificate(uname[0]).getPublicKey();
+//            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+//            keyGen.init(256); // for example
+//            SecretKey secretKey = keyGen.generateKey();
+//
+//            try {
+//                crypt = String.valueOf(encryptAES(publicKey.getEncoded().toString(), secretKey.getEncoded().toString()));
+//                requestCreateMsg(username, "PONG[|]" + crypt);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        } catch (KeyStoreException e) {
+//            e.printStackTrace();
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         db.userDao().updateUser(username, "SECURE");
     }
