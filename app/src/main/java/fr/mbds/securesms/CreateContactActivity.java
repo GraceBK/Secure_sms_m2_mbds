@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -81,13 +83,22 @@ public class CreateContactActivity extends AppCompatActivity {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            publicKey = keyStore.getCertificate("grace").getPublicKey();
+            publicKey = keyStore.getCertificate("alice").getPublicKey();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
-        Log.w("-----", "Auteur[|]"+"PING[|]" + publicKey);
+        assert publicKey != null;
+        Log.w("-----", "Auteur[|]"+"getAlgorithm[|]" + publicKey.getAlgorithm());
+        Log.w("-----", "Auteur[|]"+"getFormat[|]" + publicKey.getFormat());
+        Log.w("-----", "Auteur[|]"+"getEncoded[|]" + Arrays.toString(publicKey.getEncoded()));
 
-        requestCreateMsg(username, "PING[|]" + publicKey);
+
+        byte[] pKBytes = Base64.encode(publicKey.getEncoded(), 0);
+        String pK = new String(pKBytes);
+        String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
+        Log.w("-----", "Auteur[|]" + pubKey);
+
+        requestCreateMsg(username, "PING[|]" + pubKey);
     }
 
     @SuppressLint("StaticFieldLeak")

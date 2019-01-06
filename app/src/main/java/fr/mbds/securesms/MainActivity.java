@@ -133,7 +133,7 @@ public class MainActivity extends FragmentActivity implements ListContactFragmen
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            hideSystemUI();
+            //hideSystemUI();
         }
     }
 

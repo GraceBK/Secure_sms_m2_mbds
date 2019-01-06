@@ -214,6 +214,7 @@ public class MyServiceFetchMessage extends Service {
         User user = new User();
         user.setUsername(username);
         user.setThumbnail(r + "-" + g + "-" + b);
+        //user.setAesKey();
 
         new AsyncTask<User, Void, Void>() {
             @Override
@@ -235,7 +236,7 @@ public class MyServiceFetchMessage extends Service {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        db.userDao().updateUser(username, body.substring(7));
+                        db.userDao().updateUser2(username, "SEND_PONG", body.substring(7));
                         return null;
                     }
                 }.execute();
@@ -245,7 +246,7 @@ public class MyServiceFetchMessage extends Service {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        db.userDao().updateUser(username, body.substring(7));
+                        db.userDao().updateUser2(username, "SECURE", body.substring(7));
                         return null;
                     }
                 }.execute();
@@ -264,14 +265,6 @@ public class MyServiceFetchMessage extends Service {
             @Override
             protected Void doInBackground(Message... messages) {
                 for (Message message1 : messages) {
-/*                    if (message1.getMessage().substring(0, 6).equals("PING[|]") && message1.getMessage().length() > 6) {
-                        // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                        db.userDao().getUser(username).setIdPubKey(message1.getMessage().substring(7));
-                        break;
-                    } else if (message1.getMessage().substring(0, 6).equals("PONG[|]") && message1.getMessage().length() > 6) {
-                        // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                        db.userDao().getUser(username).setIdPubKey(message1.getMessage().substring(7));
-                    } else {*/
                     if (!message1.getMessage().contains("[|]")) {
                         db.messageDao().insert(message1);
                     }

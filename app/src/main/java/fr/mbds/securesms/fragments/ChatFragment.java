@@ -190,7 +190,7 @@ public class ChatFragment extends Fragment {
             e.printStackTrace();
         }
 
-        requestCreateMsg(username, "PONG[|]" + "SECURE");
+        requestCreateMsg(username, "PONG[|]" + "clefAESchiffreeAvecKpA");
 
         db.userDao().updateUser(username, "SECURE");
     }
@@ -259,6 +259,7 @@ public class ChatFragment extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("SEND OK", response.toString());
+                        // TODO : save Local
                     }
                 },
                 new Response.ErrorListener() {

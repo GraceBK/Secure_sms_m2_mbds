@@ -28,6 +28,9 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
@@ -52,17 +55,23 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
         Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
         Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
 
-        KeyPairGenerator keyPairGenerator = null;
-        KeyGenParameterSpec.Builder builder = null;
+        KeyPairGenerator keyPairGenerator;
 
-        KeyPair keyPair = null;
+        KeyGenParameterSpec.Builder builder;
+
+        KeyPair keyPair;
         PublicKey publicKey = null;
         PrivateKey privateKey = null;
 
 
+        KeyGenerator keyGenerator;
+        KeyGenParameterSpec.Builder builder2;
+        SecretKey secretKey;
+
+
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
-            builder = new KeyGenParameterSpec.Builder("grace", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+            builder = new KeyGenParameterSpec.Builder("alice", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
             try {
@@ -72,10 +81,15 @@ public class SplashScreen extends AppCompatActivity/* implements ServiceConnecti
             }
             //keyPairGenerator.initialize(2048);
 
+
             keyPair = keyPairGenerator.genKeyPair();
 
             publicKey = keyPair.getPublic();
             privateKey = keyPair.getPrivate();
+
+            keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
+            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
+            secretKey = keyGenerator.generateKey();
 
             //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
 
