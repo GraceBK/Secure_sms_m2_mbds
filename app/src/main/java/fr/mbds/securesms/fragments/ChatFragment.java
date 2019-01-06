@@ -271,7 +271,14 @@ public class ChatFragment extends Fragment {
                 saveLocalNewMsg(res.getText().toString(), editSms.getText().toString(), false, true);
 
                 // TODO : send server
-                requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
+                String aEnvoyer = editSms.getText().toString();
+                String crypt;
+                try {
+                    crypt = String.valueOf(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
+                    requestCreateMsg(res.getText().toString(), "MSG[|]" + crypt);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
                 Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }

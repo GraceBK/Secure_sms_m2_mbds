@@ -323,7 +323,13 @@ public class MyServiceFetchMessage extends Service {
                 Message message = new Message();
                 message.setId(id);
                 message.setAuthor(username);
-                message.setMessage(s2);
+                String dechiffre;
+                try {
+                    dechiffre = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(), s2.getBytes()));
+                    message.setMessage(dechiffre);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 message.setDateCreated(date);
                 message.setAlreadyReturned(alreadyReturned);
                 message.setCurrentUser(currentUser);
