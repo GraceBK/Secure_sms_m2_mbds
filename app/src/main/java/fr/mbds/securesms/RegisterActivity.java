@@ -32,6 +32,9 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
 import fr.mbds.securesms.utils.MyURL;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -83,8 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("[REGISTER]", response.toString());
-                        createKey(username);
-                        // TODO : Save current state (is connect) in SharePreference
+                        createKey();
                         Intent goToMain = new Intent(RegisterActivity.this, SplashScreen.class);
                         startActivity(goToMain);
                         finish();
@@ -111,8 +113,9 @@ public class RegisterActivity extends AppCompatActivity {
         queue.add(objectRequest);
     }
 
-    public void createKey(String keystoreAlias) {
+    public void createKey() {
         KeyPairGenerator keyPairGenerator;
+
         KeyGenParameterSpec.Builder builder;
 
         KeyPair keyPair;
@@ -120,9 +123,15 @@ public class RegisterActivity extends AppCompatActivity {
         PrivateKey privateKey = null;
 
 
+        KeyGenerator keyGenerator;
+        KeyGenParameterSpec.Builder builder2;
+        SecretKey secretKey = null;
+
+
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
-            builder = new KeyGenParameterSpec.Builder(keystoreAlias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+            builder = new KeyGenParameterSpec.Builder("alice", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setKeySize(1024)
                     .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
             try {
@@ -130,12 +139,22 @@ public class RegisterActivity extends AppCompatActivity {
             } catch (InvalidAlgorithmParameterException e) {
                 e.printStackTrace();
             }
-            //keyPairGenerator.initialize(2048);
-
             keyPair = keyPairGenerator.genKeyPair();
-
             publicKey = keyPair.getPublic();
             privateKey = keyPair.getPrivate();
+
+
+            keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
+            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setKeySize(128)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            try {
+                keyGenerator.init(builder2.build());
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
+            secretKey = keyGenerator.generateKey();
 
             //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
 
@@ -143,8 +162,9 @@ public class RegisterActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Log.w("[public]", "-------------" + publicKey);
-        Log.w("[privee]", "-------------" + privateKey);
+        Log.w("[RSA public]", "-------------" + publicKey);
+        Log.w("[RSA privee]", "-------------" + privateKey);
+        Log.w("[AES]", "-------------" + secretKey);
     }
 
     public void actionComposant() {

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,18 +16,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 import fr.mbds.securesms.utils.MyURL;
@@ -49,57 +37,7 @@ public class SplashScreen extends AppCompatActivity {
         // Log.e("[ACCESS TOKEN]", "-------------"+preferences.getString(getString(R.string.access_token), "No Access token"));
         // Log.e("[EXPIRES IN]", "-------------"+preferences.getInt(getString(R.string.expires_in), 0));
 
-        KeyPairGenerator keyPairGenerator;
 
-        KeyGenParameterSpec.Builder builder;
-
-        KeyPair keyPair;
-        PublicKey publicKey = null;
-        PrivateKey privateKey = null;
-
-
-        KeyGenerator keyGenerator;
-        KeyGenParameterSpec.Builder builder2;
-        SecretKey secretKey = null;
-
-
-        try {
-            keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
-            builder = new KeyGenParameterSpec.Builder("alice", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setKeySize(2048)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
-            try {
-                keyPairGenerator.initialize(builder.build());
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            }
-            keyPair = keyPairGenerator.genKeyPair();
-            publicKey = keyPair.getPublic();
-            privateKey = keyPair.getPrivate();
-
-
-            keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
-            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setKeySize(256)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            try {
-                keyGenerator.init(builder2.build());
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            }
-            secretKey = keyGenerator.generateKey();
-
-            //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
-
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            e.printStackTrace();
-        }
-
-        Log.w("[RSA public]", "-------------" + publicKey);
-        Log.w("[RSA privee]", "-------------" + privateKey);
-        Log.w("[AES]", "-------------" + secretKey);
 
         int SPLASH_TIME_OUT = 1000;
         new Handler().postDelayed(new Runnable() {
