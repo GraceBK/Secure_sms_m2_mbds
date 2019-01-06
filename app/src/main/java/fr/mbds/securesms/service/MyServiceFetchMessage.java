@@ -6,10 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -230,48 +228,60 @@ public class MyServiceFetchMessage extends Service {
     @SuppressLint("StaticFieldLeak")
     private void saveNewMsg(final String id, final String username, final String body, String date, boolean alreadyReturned, boolean currentUser) {
 
-        if (body.length() > 6) {
-            if (body.substring(0, 7).equals("PING[|]")) {
+        String delimiter = "\\[\\|\\]\\s*";
+
+        String[] tokensValues = body.split(delimiter);
+
+        String s1;
+        String s2;
+        final String s3;
+
+
+        if (tokensValues.length >= 2) {
+            s2 = tokensValues[1];
+            s3 = tokensValues[2];
+
+            if (s2.equals("PING")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        db.userDao().updateUser2(username, "SEND_PONG", body.substring(7));
+                        db.userDao().updateUser2(username, "SEND_PONG", s3);
                         return null;
                     }
                 }.execute();
             }
-            if (body.substring(0, 7).equals("PONG[|]")) {
+            if (s2.equals("PONG")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        db.userDao().updateUser2(username, "SECURE", body.substring(7));
+                        db.userDao().updateUser2(username, "SECURE", s3);
                         return null;
                     }
                 }.execute();
             }
+            if (s2.equals("MSG")) {
+                Message message = new Message();
+                message.setId(id);
+                message.setAuthor(username);
+                message.setMessage(s3);
+                message.setDateCreated(date);
+                message.setAlreadyReturned(alreadyReturned);
+                message.setCurrentUser(currentUser);
+
+                new AsyncTask<Message, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Message... messages) {
+                        for (Message message1 : messages) {
+                            db.messageDao().insert(message1);
+                        }
+                        return null;
+                    }
+                }.execute(message);
+            }
+
         }
-
-        Message message = new Message();
-        message.setId(id);
-        message.setAuthor(username);
-        message.setMessage(body);
-        message.setDateCreated(date);
-        message.setAlreadyReturned(alreadyReturned);
-        message.setCurrentUser(currentUser);
-
-        new AsyncTask<Message, Void, Void>() {
-            @Override
-            protected Void doInBackground(Message... messages) {
-                for (Message message1 : messages) {
-                    if (!message1.getMessage().contains("[|]")) {
-                        db.messageDao().insert(message1);
-                    }
-                }
-                return null;
-            }
-        }.execute(message);
     }
 
 }
