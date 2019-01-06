@@ -275,7 +275,7 @@ public class MyServiceFetchMessage extends Service {
         // final String s3;
 
 
-        if (tokensValues.length >= 1) {
+        if (tokensValues.length > 1) {
             s1 = tokensValues[0];
             s2 = tokensValues[1];
 

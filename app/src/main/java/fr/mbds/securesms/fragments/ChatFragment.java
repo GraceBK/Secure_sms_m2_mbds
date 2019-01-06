@@ -271,7 +271,7 @@ public class ChatFragment extends Fragment {
                 saveLocalNewMsg(res.getText().toString(), editSms.getText().toString(), false, true);
 
                 // TODO : send server
-                requestCreateMsg(res.getText().toString(), editSms.getText().toString());
+                requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
             } else {
                 Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }
