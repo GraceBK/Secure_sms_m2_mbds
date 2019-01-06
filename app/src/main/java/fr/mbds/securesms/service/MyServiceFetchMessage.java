@@ -28,10 +28,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
@@ -225,6 +237,29 @@ public class MyServiceFetchMessage extends Service {
         }.execute(user);
     }
 
+    public static byte[] decryptAES(String seed, byte[] data) throws Exception {
+        byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
+        SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        return cipher.doFinal(data);
+    }
+
+    private static int BLOCKS = 128;
+
+    private static byte[] getRawKey(byte[] seed) throws Exception {
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        sr.setSeed(seed);
+        kgen.init(BLOCKS, sr); // 192 and 256 bits may not be available
+        SecretKey skey = kgen.generateKey();
+        byte[] raw = skey.getEncoded();
+        return raw;
+    }
+
+    KeyStore keyStore;
+    KeyStore.Entry entry;
+
     @SuppressLint("StaticFieldLeak")
     private void saveNewMsg(final String id, final String username, final String body, String date, boolean alreadyReturned, boolean currentUser) {
 
@@ -232,8 +267,10 @@ public class MyServiceFetchMessage extends Service {
 
         String[] tokensValues = body.split(delimiter);
 
-        String s1;
+        final String s1;
         final String s2;
+        final String[] decrypt = new String[1];
+        final PublicKey[] publicKey = new PublicKey[1];
         // final String s3;
 
 
@@ -256,6 +293,25 @@ public class MyServiceFetchMessage extends Service {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
+                        try {
+                            keyStore = KeyStore.getInstance("AndroidKeyStore");
+                            keyStore.load(null);
+                            publicKey[0] = keyStore.getCertificate("alice").getPublicKey();
+                        } catch (KeyStoreException e) {
+                            e.printStackTrace();
+                        } catch (CertificateException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        db.userDao().updateAES(username, s2);
                         db.userDao().updateUser2(username, "SECURE", s2);
                         return null;
                     }
