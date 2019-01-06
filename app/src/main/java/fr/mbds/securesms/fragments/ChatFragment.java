@@ -57,6 +57,7 @@ import fr.mbds.securesms.adapters.MyMsgAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
+import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 import fr.mbds.securesms.view_model.MessageViewModel;
 import fr.mbds.securesms.view_model.MyViewModelFactory;
@@ -206,7 +207,8 @@ public class ChatFragment extends Fragment {
         db.userDao().updateAES(username, secretKey.getEncoded().toString());
 
         try {
-            crypt = String.valueOf(encryptAES(String.valueOf(publicKey), secretKey.getEncoded().toString()));
+            crypt = new Cryptography("alice").chiffer(secretKey.getEncoded().toString());
+//            crypt = String.valueOf(encryptAES(String.valueOf(publicKey), secretKey.getEncoded().toString()));
             requestCreateMsg(username, "PONG[|]" + crypt);
         } catch (Exception e) {
             e.printStackTrace();

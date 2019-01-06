@@ -50,6 +50,7 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
+import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 
 public class MyServiceFetchMessage extends Service {
@@ -307,12 +308,13 @@ public class MyServiceFetchMessage extends Service {
                             e.printStackTrace();
                         }
                         try {
-                            decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
+                            decrypt[0] = new Cryptography("alice").dechiffer();
+                            //decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         db.userDao().updateAES(username, decrypt[0]);
-                        db.userDao().updateUser2(username, "SECURE", s2);
+                        db.userDao().updateUser2(username, "SECURE", publicKey[0].getEncoded().toString());
                         return null;
                     }
                 }.execute();
