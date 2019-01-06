@@ -311,7 +311,7 @@ public class MyServiceFetchMessage extends Service {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        db.userDao().updateAES(username, s2);
+                        db.userDao().updateAES(username, decrypt[0]);
                         db.userDao().updateUser2(username, "SECURE", s2);
                         return null;
                     }
