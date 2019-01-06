@@ -238,8 +238,8 @@ public class MyServiceFetchMessage extends Service {
 
 
         if (tokensValues.length >= 1) {
-            s1 = tokensValues[0];
-            s2 = tokensValues[1];
+            s1 = tokensValues[1];
+            s2 = tokensValues[2];
 
             if (s1.equals("PING")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
