@@ -95,10 +95,10 @@ public class CreateContactActivity extends AppCompatActivity {
 
         byte[] pKBytes = Base64.encode(publicKey.getEncoded(), 0);
         String pK = new String(pKBytes);
-        String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
-        Log.w("-----", "Auteur[|]" + pubKey);
+        // String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
+        Log.w("-----", "Auteur[|]" + pK);
 
-        requestCreateMsg(username, "PING[|]" + pubKey);
+        requestCreateMsg(username, "PING[|]" + pK);
     }
 
     @SuppressLint("StaticFieldLeak")
