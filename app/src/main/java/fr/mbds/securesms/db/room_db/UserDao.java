@@ -34,6 +34,9 @@ public interface UserDao {
     @Query("UPDATE User SET indexToPubKey = :newIdPubKey, pubKey = :pubKey WHERE username = :user")
     void updateUser2(String user, String newIdPubKey, String pubKey);
 
+    @Query("UPDATE User SET indexToPubKey = :newAes WHERE username = :user")
+    void updateAES(String user, String newAes);
+
     @Query("SELECT * FROM User")
     LiveData<List<User>> getAll();
 
