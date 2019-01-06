@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -44,6 +45,8 @@ public class RegisterActivity extends AppCompatActivity {
     EditText et_password;
     Button btn_create;
     TextView tv_go_login;
+    Cryptography cryptography;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +89,11 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("[REGISTER]", response.toString());
-                        createKey();
+                        try {
+                            cryptography = new Cryptography("alice");
+                        } catch (NoSuchProviderException e) {
+                            e.printStackTrace();
+                        }
                         Intent goToMain = new Intent(RegisterActivity.this, SplashScreen.class);
                         startActivity(goToMain);
                         finish();
@@ -111,60 +118,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
         queue.add(objectRequest);
-    }
-
-    public void createKey() {
-        KeyPairGenerator keyPairGenerator;
-
-        KeyGenParameterSpec.Builder builder;
-
-        KeyPair keyPair;
-        PublicKey publicKey = null;
-        PrivateKey privateKey = null;
-
-
-        KeyGenerator keyGenerator;
-        KeyGenParameterSpec.Builder builder2;
-        SecretKey secretKey = null;
-
-
-        try {
-            keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
-            builder = new KeyGenParameterSpec.Builder("alice", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setKeySize(1024)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
-            try {
-                keyPairGenerator.initialize(builder.build());
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            }
-            keyPair = keyPairGenerator.genKeyPair();
-            publicKey = keyPair.getPublic();
-            privateKey = keyPair.getPrivate();
-
-
-            keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
-            builder2 = new KeyGenParameterSpec.Builder("bob", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setKeySize(128)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            try {
-                keyGenerator.init(builder2.build());
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            }
-            secretKey = keyGenerator.generateKey();
-
-            //new KryptosAES().dechiffrement(new KryptosAES().chiffrement("Grace", publicKey), privateKey);
-
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            e.printStackTrace();
-        }
-
-        Log.w("[RSA public]", "-------------" + publicKey);
-        Log.w("[RSA privee]", "-------------" + privateKey);
-        Log.w("[AES]", "-------------" + secretKey);
     }
 
     public void actionComposant() {
