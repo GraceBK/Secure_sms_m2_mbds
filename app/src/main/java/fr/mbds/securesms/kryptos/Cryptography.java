@@ -1,4 +1,4 @@
-package com.mohamed_kms.securedmessages;
+package fr.mbds.securesms.kryptos;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
