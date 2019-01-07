@@ -202,8 +202,8 @@ public class ChatFragment extends Fragment {
             }
         }.execute();
 
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES/ECB/PKCS1Padding");
-        keyGen.init(256); // for example
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128); // for example
         SecretKey secretKey = keyGen.generateKey();
         db.userDao().updateAES(username, secretKey.getEncoded().toString());
 
