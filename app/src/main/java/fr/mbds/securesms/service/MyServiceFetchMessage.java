@@ -243,6 +243,20 @@ public class MyServiceFetchMessage extends Service {
         }.execute(user);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public static byte[] decryptAES(String seed, byte[] data) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
         SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");

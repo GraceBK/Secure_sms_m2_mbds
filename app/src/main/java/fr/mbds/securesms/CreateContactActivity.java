@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,13 +28,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -88,6 +95,35 @@ public class CreateContactActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     public void sendPing(final String username) {
+
+
+/*------------------------------------------------------------------------------------------------*/
+
+        KeyPairGenerator keyPairGenerator;
+        KeyPair keyPair = null;
+        KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder("blublu", KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
+            keyPairGenerator.initialize(builder.build());
+
+            keyPair = keyPairGenerator.generateKeyPair();
+
+
+
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+
+        assert keyPair != null;
+        Log.w("-----", "[ Key Pair (pub) ]" + Arrays.toString(keyPair.getPublic().getEncoded()));
+        Log.e("-----", "[ Key Pair (pri) ]" + keyPair.getPrivate().getFormat());
+
+/*------------------------------------------------------------------------------------------------*/
+
+
+
         KeyStore keyStore;
         PublicKey publicKey = null;
 
@@ -95,7 +131,7 @@ public class CreateContactActivity extends AppCompatActivity {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            publicKey = keyStore.getCertificate("alice").getPublicKey();
+            publicKey = keyStore.getCertificate("blublu").getPublicKey();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
@@ -110,7 +146,7 @@ public class CreateContactActivity extends AppCompatActivity {
         // String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
         Log.w("-----", "Auteur[|]" + pK);
 
-        requestCreateMsg(username, "PING[|]" + pK);
+        // TODO : requestCreateMsg(username, "PING[|]" + pK);
 /*------------------------------------------------------------------------------------------------*/
         byte[] publicBytes = Base64.decode(pKBytes, 0);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
@@ -124,9 +160,10 @@ public class CreateContactActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         assert publicKey1 != null;
-        Log.w("-----", "Auteur[|]"+"getAlgorithm[|]" + publicKey1.getAlgorithm());
-        Log.w("-----", "Auteur[|]"+"getFormat[|]" + publicKey1.getFormat());
-        Log.w("-----", "Auteur[|]"+"getEncoded[|]" + Arrays.toString(publicKey1.getEncoded()));
+        Log.e("-----", "String to PublicKey");
+        Log.w("-----", "[ getAlgorithm ]" + publicKey1.getAlgorithm());
+        Log.w("-----", "[ getFormat ]" + publicKey1.getFormat());
+        Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey1.getEncoded()));
 
 
 
@@ -143,6 +180,7 @@ public class CreateContactActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         assert secretKey != null;
+        Log.e("-----", "Genere SecretKey");
         Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
         Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
         Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
@@ -161,7 +199,7 @@ public class CreateContactActivity extends AppCompatActivity {
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey1);
             encodeTxt = cipher.doFinal(sKBytes);
-            Log.w("[ENCODE]", new String(encodeTxt));
+            Log.i("[ENCODE]", new String(encodeTxt));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
@@ -169,14 +207,23 @@ public class CreateContactActivity extends AppCompatActivity {
 
         PrivateKey privateKey = null;
 
+
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            //privateKey = keyStore.getCertificate("")
-        } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+            KeyStore.Entry entry = keyStore.getEntry("blublu", null);
+
+            privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+        } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | UnrecoverableEntryException e) {
             e.printStackTrace();
         }
+
+        assert privateKey != null;
+        Log.e("-----", "Get PrivateKey");
+        Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
+        Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
+        Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
 
 
         /**
@@ -185,12 +232,13 @@ public class CreateContactActivity extends AppCompatActivity {
         byte[] decodeTxt = null;
         try {
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, publicKey1);
-            encodeTxt = cipher.doFinal(sKBytes);
-            Log.w("[DECODE]", new String(encodeTxt));
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            decodeTxt = cipher.doFinal(encodeTxt);
+            Log.i("[DECODE]", new String(decodeTxt));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
+
 
 
 
