@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -211,7 +212,8 @@ public class ChatFragment extends Fragment {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            crypt = chiffer(secretKey.getEncoded().toString(), keyStore.getCertificate("alice").getPublicKey());
+            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), keyStore.getCertificate("alice").getPublicKey());
+            Log.w("SECRET KEY", new String(Base64.encode(secretKey.getEncoded(), 0)));
             requestCreateMsg(username, "PONG[|]" + crypt);
 
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
