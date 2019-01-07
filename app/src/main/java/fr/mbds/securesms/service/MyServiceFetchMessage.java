@@ -331,7 +331,7 @@ public class MyServiceFetchMessage extends Service {
                 message.setAuthor(username);
                 String dechiffre;
                 try {
-                    dechiffre = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(), s2.getBytes()));
+                    dechiffre = new String(decryptAES(publicKey[0].getEncoded().toString(), s2.getBytes()));
                     message.setMessage(dechiffre);
                 } catch (Exception e) {
                     e.printStackTrace();

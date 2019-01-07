@@ -307,7 +307,7 @@ public class ChatFragment extends Fragment {
                 String aEnvoyer = editSms.getText().toString();
                 String crypt;
                 try {
-                    crypt = String.valueOf(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
+                    crypt = new String(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
                     requestCreateMsg(res.getText().toString(), "MSG[|]" + crypt);
                 } catch (Exception e) {
                     e.printStackTrace();
