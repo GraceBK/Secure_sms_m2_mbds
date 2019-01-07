@@ -26,15 +26,27 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
@@ -99,6 +111,90 @@ public class CreateContactActivity extends AppCompatActivity {
         Log.w("-----", "Auteur[|]" + pK);
 
         requestCreateMsg(username, "PING[|]" + pK);
+/*------------------------------------------------------------------------------------------------*/
+        byte[] publicBytes = Base64.decode(pKBytes, 0);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+
+        KeyFactory keyFactory;
+        PublicKey publicKey1 = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+            publicKey1 = keyFactory.generatePublic(keySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        assert publicKey1 != null;
+        Log.w("-----", "Auteur[|]"+"getAlgorithm[|]" + publicKey1.getAlgorithm());
+        Log.w("-----", "Auteur[|]"+"getFormat[|]" + publicKey1.getFormat());
+        Log.w("-----", "Auteur[|]"+"getEncoded[|]" + Arrays.toString(publicKey1.getEncoded()));
+
+
+
+
+
+
+        KeyGenerator generator;
+        SecretKey secretKey = null;
+        try {
+            generator = KeyGenerator.getInstance("AES");
+            generator.init(128);
+            secretKey = generator.generateKey();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        assert secretKey != null;
+        Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
+        Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
+        Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
+
+        byte[] sKBytes = Base64.encode(secretKey.getEncoded(), 0);
+        String sK = new String(sKBytes);
+        // String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
+        Log.w("-----", "Auteur[|]" + sK);
+
+
+        /**
+         * ENCODE
+         */
+        byte[] encodeTxt = null;
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey1);
+            encodeTxt = cipher.doFinal(sKBytes);
+            Log.w("[ENCODE]", new String(encodeTxt));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+
+        PrivateKey privateKey = null;
+
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+
+            //privateKey = keyStore.getCertificate("")
+        } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+
+        /**
+         * DECODE
+         */
+        byte[] decodeTxt = null;
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, publicKey1);
+            encodeTxt = cipher.doFinal(sKBytes);
+            Log.w("[DECODE]", new String(encodeTxt));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+
+
+        /*------------------------------------------------------------------------------------------------*/
     }
 
     @SuppressLint("StaticFieldLeak")
