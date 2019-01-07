@@ -222,7 +222,7 @@ public class ChatFragment extends Fragment {
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
-        
+
 //
 //        try {
 //            keyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -253,12 +253,14 @@ public class ChatFragment extends Fragment {
         db.userDao().updateUser(username, "SECURE");
     }
 
+    String encrypted;
     byte[] encryptedBytes;
     public String chiffer(String plain, PublicKey publicKey){
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             encryptedBytes = cipher.doFinal(plain.getBytes());
+            encrypted = new String(encryptedBytes);
             System.out.println("Chiffré  ? :" + new String(encryptedBytes));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -271,7 +273,7 @@ public class ChatFragment extends Fragment {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
-        return encryptedBytes.toString();
+        return encrypted;
     }
 
     private static int BLOCKS = 128;
