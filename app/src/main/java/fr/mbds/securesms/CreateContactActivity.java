@@ -111,7 +111,7 @@ public class CreateContactActivity extends AppCompatActivity {
         User user = new User();
         user.setUsername(username.replaceAll("\\s+$", ""));
         user.setThumbnail(r + "-" + g + "-" + b);
-        user.setIdPubKey("WAIT_PONG");
+        user.setStatus("WAIT_PONG");
 
         new AsyncTask<User, Void, Void>() {
             @Override

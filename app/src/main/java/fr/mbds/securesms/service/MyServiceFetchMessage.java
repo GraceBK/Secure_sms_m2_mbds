@@ -299,17 +299,12 @@ public class MyServiceFetchMessage extends Service {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
+                        db.userDao().updateAES(username, s2);
                         try {
                             keyStore = KeyStore.getInstance("AndroidKeyStore");
                             keyStore.load(null);
                             publicKey[0] = keyStore.getCertificate("alice").getPublicKey();
-                        } catch (KeyStoreException e) {
-                            e.printStackTrace();
-                        } catch (CertificateException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (NoSuchAlgorithmException e) {
+                        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
                             e.printStackTrace();
                         }
 

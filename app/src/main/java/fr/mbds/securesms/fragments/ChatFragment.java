@@ -35,10 +35,8 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -61,7 +59,6 @@ import fr.mbds.securesms.adapters.MyMsgAdapter;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
-import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 import fr.mbds.securesms.view_model.MessageViewModel;
 import fr.mbds.securesms.view_model.MyViewModelFactory;
@@ -132,12 +129,12 @@ public class ChatFragment extends Fragment {
 
             User tt = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME"));
 
-            String t = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME")).getIdPubKey();
+            String t = db.userDao().getUser(Objects.requireNonNull(args).getString("USERNAME")).getStatus();
 
-            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getIdPubKey(), Toast.LENGTH_LONG).show();
-            Log.w("[GRACE]", Objects.requireNonNull(args).getString("USERNAME")+" setIdPubKey = " + t);
+            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getStatus(), Toast.LENGTH_LONG).show();
+            Log.w("[GRACE]", Objects.requireNonNull(args).getString("USERNAME")+" setStatus = " + t);
 
-            if (tt.getIdPubKey().equals("SEND_PING")) {
+            if (tt.getStatus().equals("SEND_PING")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -146,7 +143,7 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            else if (tt.getIdPubKey().equals("WAIT_PONG")) {
+            else if (tt.getStatus().equals("WAIT_PONG")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -155,7 +152,7 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            else if (tt.getIdPubKey().equals("SEND_PONG")) {
+            else if (tt.getStatus().equals("SEND_PONG")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -200,7 +197,7 @@ public class ChatFragment extends Fragment {
             @Override
             protected Void doInBackground(Void... voids) {
 
-                publicKey[0] = db.userDao().getUser(username).getPubKey();
+                publicKey[0] = db.userDao().getUser(username).getPublicKey();
                 return null;
             }
         }.execute();
@@ -210,12 +207,10 @@ public class ChatFragment extends Fragment {
         SecretKey secretKey = keyGen.generateKey();
         db.userDao().updateAES(username, secretKey.getEncoded().toString());
 
-        PublicKey publicKey1;
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            publicKey1 = keyStore.getCertificate("alice").getPublicKey();
             crypt = chiffer(secretKey.getEncoded().toString(), keyStore.getCertificate("alice").getPublicKey());
             requestCreateMsg(username, "PONG[|]" + crypt);
 
@@ -427,12 +422,12 @@ public class ChatFragment extends Fragment {
 
             User tt = db.userDao().getUser(bundle.getString("USERNAME"));
 
-            String t = db.userDao().getUser(bundle.getString("USERNAME")).getIdPubKey();
+            String t = db.userDao().getUser(bundle.getString("USERNAME")).getStatus();
 
-            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getIdPubKey(), Toast.LENGTH_LONG).show();
-            Log.w("[GRACE]", bundle.getString("USERNAME")+" setIdPubKey = " + t);
+            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getStatus(), Toast.LENGTH_LONG).show();
+            Log.w("[GRACE]", bundle.getString("USERNAME")+" setStatus = " + t);
 
-            if (tt.getIdPubKey().equals("SEND_PING")) {
+            if (tt.getStatus().equals("SEND_PING")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -441,7 +436,7 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            else if (tt.getIdPubKey().equals("WAIT_PONG")) {
+            else if (tt.getStatus().equals("WAIT_PONG")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
@@ -450,7 +445,7 @@ public class ChatFragment extends Fragment {
                 Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
             }
 
-            else if (tt.getIdPubKey().equals("SEND_PONG")) {
+            else if (tt.getStatus().equals("SEND_PONG")) {
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);

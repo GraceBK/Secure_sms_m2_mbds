@@ -17,11 +17,11 @@ public class User {
     @ColumnInfo(name = "picture")
     private String thumbnail;
 
-    @ColumnInfo(name = "indexToPubKey")
-    private String idPubKey = "SEND_PING";
+    @ColumnInfo(name = "status")
+    private String status = "SEND_PING";
 
-    @ColumnInfo(name = "pubKey")
-    private String pubKey;
+    @ColumnInfo(name = "publicKey")
+    private String publicKey;
 
     @ColumnInfo(name = "privateKey")
     private String privateKey;
@@ -46,18 +46,18 @@ public class User {
         this.thumbnail = thumbnail;
     }
 
-    public String getIdPubKey() {
-        return idPubKey;
+    public String getStatus() {
+        return status;
     }
 
-    public void setIdPubKey(String idPubKey) {
-        this.idPubKey = idPubKey;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getPubKey() { return pubKey; }
+    public String getPublicKey() { return publicKey; }
 
-    public void setPubKey(String pubKey) {
-        this.pubKey = pubKey;
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 
     public String getPrivateKey() { return privateKey; }

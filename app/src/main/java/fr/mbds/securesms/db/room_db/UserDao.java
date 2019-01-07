@@ -28,10 +28,10 @@ public interface UserDao {
     @Query("SELECT * FROM User WHERE username = :user")
     User getUser(String user);
 
-    @Query("UPDATE User SET indexToPubKey = :newIdPubKey WHERE username = :user")
+    @Query("UPDATE User SET status = :newIdPubKey WHERE username = :user")
     void updateUser(String user, String newIdPubKey);
 
-    @Query("UPDATE User SET indexToPubKey = :newIdPubKey, pubKey = :pubKey WHERE username = :user")
+    @Query("UPDATE User SET status = :newIdPubKey, publicKey = :pubKey WHERE username = :user")
     void updateUser2(String user, String newIdPubKey, String pubKey);
 
     @Query("UPDATE User SET aesKey = :newAes WHERE username = :user")
