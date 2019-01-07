@@ -29,9 +29,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -40,8 +42,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -307,8 +312,9 @@ public class MyServiceFetchMessage extends Service {
                         } catch (NoSuchAlgorithmException e) {
                             e.printStackTrace();
                         }
+
                         try {
-                            decrypt[0] = new Cryptography("alice").dechiffer();
+                            decrypt[0] = dechiffer(s2.getBytes(), ((KeyStore.PrivateKeyEntry)keyStore.getEntry("alice",null)).getPrivateKey());
                             //decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -346,6 +352,28 @@ public class MyServiceFetchMessage extends Service {
             }
 
         }
+    }
+
+    private byte[] decryptedBytes;
+
+    public String dechiffer(byte[] encryptedBytes, PrivateKey privateKey){
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            decryptedBytes = cipher.doFinal(encryptedBytes);
+            System.out.println("Chiffré  ? :" + new String(decryptedBytes));
+        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        return new String(decryptedBytes);
     }
 
 }

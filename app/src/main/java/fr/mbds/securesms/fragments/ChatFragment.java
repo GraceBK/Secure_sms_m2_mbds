@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -47,8 +48,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -206,13 +210,19 @@ public class ChatFragment extends Fragment {
         SecretKey secretKey = keyGen.generateKey();
         db.userDao().updateAES(username, secretKey.getEncoded().toString());
 
+        PublicKey publicKey1;
         try {
-            crypt = new Cryptography("alice").chiffer(secretKey.getEncoded().toString());
-//            crypt = String.valueOf(encryptAES(String.valueOf(publicKey), secretKey.getEncoded().toString()));
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+
+            publicKey1 = keyStore.getCertificate("alice").getPublicKey();
+            crypt = chiffer(secretKey.getEncoded().toString(), keyStore.getCertificate("alice").getPublicKey());
             requestCreateMsg(username, "PONG[|]" + crypt);
-        } catch (Exception e) {
+
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
+        
 //
 //        try {
 //            keyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -241,6 +251,27 @@ public class ChatFragment extends Fragment {
 //        }
 
         db.userDao().updateUser(username, "SECURE");
+    }
+
+    byte[] encryptedBytes;
+    public String chiffer(String plain, PublicKey publicKey){
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            encryptedBytes = cipher.doFinal(plain.getBytes());
+            System.out.println("Chiffré  ? :" + new String(encryptedBytes));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        return encryptedBytes.toString();
     }
 
     private static int BLOCKS = 128;
