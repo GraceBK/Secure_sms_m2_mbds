@@ -33,12 +33,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -203,6 +206,15 @@ public class ChatFragment extends Fragment {
             }
         }.execute();
 
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(Base64.decode(publicKey[0], 0));
+        PublicKey publicKey1 = null;
+        try {
+            publicKey1 = keyFactory.generatePublic(encodedKeySpec);
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(128); // for example
         SecretKey secretKey = keyGen.generateKey();
@@ -212,8 +224,12 @@ public class ChatFragment extends Fragment {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), keyStore.getCertificate("alice").getPublicKey());
+            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), publicKey1);
+
+//            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), keyStore.getCertificate("alice").getPublicKey());
             Log.w("SECRET KEY", new String(Base64.encode(secretKey.getEncoded(), 0)));
+            Log.w("PUBLIC KEY", new String(Base64.encode(publicKey1.getEncoded(), 0)));
+            Log.w("crypt", crypt);
             requestCreateMsg(username, "PONG[|]" + crypt);
 
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
