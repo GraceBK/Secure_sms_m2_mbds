@@ -246,7 +246,7 @@ public class MyServiceFetchMessage extends Service {
     public static byte[] decryptAES(String seed, byte[] data) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
         SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec);
         return cipher.doFinal(data);
     }
@@ -309,7 +309,8 @@ public class MyServiceFetchMessage extends Service {
                         }
 
                         try {
-                            decrypt[0] = dechiffer(s2.getBytes(), ((KeyStore.PrivateKeyEntry)keyStore.getEntry("alice",null)).getPrivateKey());
+                            decrypt[0] = dechiffer(s2, ((KeyStore.PrivateKeyEntry)keyStore.getEntry("alice",null)).getPrivateKey());
+                            Log.w("DECRYPT[0]", decrypt[0]);
                             //decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -326,8 +327,9 @@ public class MyServiceFetchMessage extends Service {
                 message.setAuthor(username);
                 String dechiffre;
                 try {
-                    dechiffre = new String(decryptAES(publicKey[0].getEncoded().toString(), s2.getBytes()));
+                    dechiffre = new String(decryptAES(decrypt[0], s2.getBytes()));
                     message.setMessage(dechiffre);
+                    Log.w("DECHIFFRE", dechiffre);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -351,11 +353,11 @@ public class MyServiceFetchMessage extends Service {
 
     private byte[] decryptedBytes;
 
-    public String dechiffer(byte[] encryptedBytes, PrivateKey privateKey){
+    public String dechiffer(String encryptedBytes, PrivateKey privateKey){
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            decryptedBytes = cipher.doFinal(encryptedBytes);
+            decryptedBytes = cipher.doFinal(encryptedBytes.getBytes());
             System.out.println("Chiffré  ? :" + new String(decryptedBytes));
         } catch (NoSuchAlgorithmException e) {
         } catch (NoSuchPaddingException e) {
