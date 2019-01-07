@@ -246,7 +246,7 @@ public class MyServiceFetchMessage extends Service {
     public static byte[] decryptAES(String seed, byte[] data) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
         SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec);
         return cipher.doFinal(data);
     }

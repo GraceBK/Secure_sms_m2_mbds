@@ -202,8 +202,8 @@ public class ChatFragment extends Fragment {
             }
         }.execute();
 
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES/ECB/PKCS1Padding");
-        keyGen.init(256); // for example
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128); // for example
         SecretKey secretKey = keyGen.generateKey();
         db.userDao().updateAES(username, secretKey.getEncoded().toString());
 
@@ -277,7 +277,7 @@ public class ChatFragment extends Fragment {
             throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
         SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
         return cipher.doFinal(cleartext.getBytes("UTF8"));
     }
