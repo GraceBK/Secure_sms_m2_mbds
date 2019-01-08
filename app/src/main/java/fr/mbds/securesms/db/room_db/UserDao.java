@@ -28,14 +28,23 @@ public interface UserDao {
     @Query("SELECT * FROM User WHERE username = :user")
     User getUser(String user);
 
-    @Query("UPDATE User SET status = :newIdPubKey WHERE username = :user")
-    void updateUser(String user, String newIdPubKey);
+    @Query("SELECT * FROM User WHERE username = :user")
+    LiveData<User> geOnetUser(String user);
 
-    @Query("UPDATE User SET status = :newIdPubKey, publicKey = :pubKey WHERE username = :user")
-    void updateUser2(String user, String newIdPubKey, String pubKey);
+    @Query("UPDATE User SET status = :newStatus WHERE username = :user")
+    void updateUserStatus(String user, String newStatus);
 
-    @Query("UPDATE User SET aesKey = :newAes WHERE username = :user")
-    void updateAES(String user, String newAes);
+    @Query("UPDATE User SET aesKey = :aesKey WHERE username = :user")
+    void updateUserAes(String user, String aesKey);
+
+    @Query("UPDATE User SET status = :newStatus, publicKey = :pubKey WHERE username = :user")
+    void updateUser2(String user, String newStatus, String pubKey);
+
+    @Query("UPDATE User SET status = :newStatus, publicKey = :pubKey WHERE username = :user")
+    void updateUserPublicKey(String user, String newStatus, String pubKey);
+
+    @Query("UPDATE User SET status = :newStatus, publicKey = :pubKey WHERE username = :user")
+    void updateUserPrivateKey(String user, String newStatus, String pubKey);
 
     @Query("SELECT * FROM User")
     LiveData<List<User>> getAll();

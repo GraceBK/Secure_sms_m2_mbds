@@ -20,11 +20,9 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -34,7 +32,6 @@ public class RegisterActivity extends AppCompatActivity {
     EditText et_password;
     Button btn_create;
     TextView tv_go_login;
-    Cryptography cryptography;
 
 
     @Override
@@ -78,11 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("[REGISTER]", response.toString());
-                        try {
-                            cryptography = new Cryptography("alice");
-                        } catch (NoSuchProviderException e) {
-                            e.printStackTrace();
-                        }
+
                         Intent goToMain = new Intent(RegisterActivity.this, SplashScreen.class);
                         startActivity(goToMain);
                         finish();

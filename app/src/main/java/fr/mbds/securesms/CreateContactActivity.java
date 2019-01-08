@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,26 +26,14 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.User;
@@ -86,66 +75,18 @@ public class CreateContactActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     public void sendPing(final String username) {
+        addNewUser(username);
 
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                requestCreateMsg(username, "PING[|]" + db.userDao().getUser(username).getPublicKey());
+            }
+        };
+        handler.postDelayed(runnable, 1000);
 
-/*------------------------------------------------------------------------------------------------*/
-
-        KeyPairGenerator keyPairGenerator;
-        KeyPair keyPair = null;
-        try {
-            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-
-            keyPair = keyPairGenerator.generateKeyPair();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
-        assert keyPair != null;
-        Log.w("-----", "[ Key Pair (pub) ]" + Arrays.toString(keyPair.getPublic().getEncoded()));
-        Log.e("-----", "[ Key Pair (pri) ]" + Arrays.toString(keyPair.getPrivate().getEncoded()));
-
-/*------------------------------------------------------------------------------------------------*/
-
-        PublicKey publicKey = keyPair.getPublic();
-
-        assert publicKey != null;
-        Log.d("-----", "Get PublicKey");
-        // Log.w("-----", "[ getAlgorithm ]" + publicKey.getAlgorithm());
-        // Log.w("-----", "[ getFormat ]" + publicKey.getFormat());
-        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey.getEncoded()));
-        byte[] puKBytes = Base64.encode(publicKey.getEncoded(), 0);
-        String pK = new String(puKBytes);
-        Log.i("-----", "-----\n-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n");
-
-        PrivateKey privateKey = keyPair.getPrivate();
-
-        assert privateKey != null;
-        // Log.d("-----", "Get PrivateKey");
-        // Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
-        // Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
-        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
-        byte[] priBytes = Base64.encode(privateKey.getEncoded(), 0);
-        String privateK = new String(priBytes);
-        Log.i("-----", "-----\n-----BEGIN PRIVATE KEY-----\n" + privateK + "-----END PRIVATE KEY-----\n");
-
-        // DONE : Sauvegarde des Clefs PublicKey et PrivateKey dans un SharedPreferences
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("pubAlgo", publicKey.getAlgorithm());
-        editor.putString("pubFormat", publicKey.getFormat());
-        // editor.putString("pubEncoded", Arrays.toString(publicKey.getEncoded()));
-        editor.putString("pubEncoded", pK);
-
-        editor.putString("priAlgo", privateKey.getAlgorithm());
-        editor.putString("priFormat", privateKey.getFormat());
-        // editor.putString("priEncoded", Arrays.toString(privateKey.getEncoded()));
-        editor.putString("priEncoded", privateK);
-        editor.apply();
-
-        // TODO : requestCreateMsg(username, "PING[|]" + pK);
-/*------------------------------------------------------------------------------------------------*/
+/*
         byte[] publicBytes = Base64.decode(puKBytes, 0);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
 
@@ -163,29 +104,8 @@ public class CreateContactActivity extends AppCompatActivity {
         Log.w("-----", "[ getFormat ]" + publicKey1.getFormat());
         Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey1.getEncoded()));
 
+------------------------------------------------------------------------------------------------
 
-
-
-
-
-        // DONE : Generation de la Clef Secrete
-        KeyGenerator generator;
-        SecretKey secretKey = null;
-        try {
-            generator = KeyGenerator.getInstance("AES");
-            generator.init(128);
-            secretKey = generator.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        assert secretKey != null;
-        Log.e("-----", "Genere SecretKey");
-        // Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
-        // Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
-        // Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
-        byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
-        String secretK = new String(secKBytes);
-        Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
 
 
 
@@ -213,7 +133,7 @@ public class CreateContactActivity extends AppCompatActivity {
 
 
 
-        /*------------------------------------------------------------------------------------------------*/
+        ------------------------------------------------------------------------------------------------*/
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -223,10 +143,52 @@ public class CreateContactActivity extends AppCompatActivity {
         int g = rand.nextInt(255);
         int b = rand.nextInt(255);
 
+/*------------------------------------------------------------------------------------------------*/
+        KeyPairGenerator keyPairGenerator;
+        KeyPair keyPair = null;
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+
+            keyPair = keyPairGenerator.generateKeyPair();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        assert keyPair != null;
+        // Log.w("-----", "[ Key Pair (pub) ]" + Arrays.toString(keyPair.getPublic().getEncoded()));
+        // Log.e("-----", "[ Key Pair (pri) ]" + Arrays.toString(keyPair.getPrivate().getEncoded()));
+/*------------------------------------------------------------------------------------------------*/
+        PublicKey publicKey = keyPair.getPublic();
+
+        assert publicKey != null;
+        Log.d("-----", "Get PublicKey");
+        // Log.w("-----", "[ getAlgorithm ]" + publicKey.getAlgorithm());
+        // Log.w("-----", "[ getFormat ]" + publicKey.getFormat());
+        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey.getEncoded()));
+        byte[] puKBytes = Base64.encode(publicKey.getEncoded(), 0);
+        String publicK = new String(puKBytes);
+        // Log.i("-----", "-----\n-----BEGIN PUBLIC KEY-----\n" + publicK + "-----END PUBLIC KEY-----\n");
+
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        assert privateKey != null;
+        // Log.d("-----", "Get PrivateKey");
+        // Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
+        // Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
+        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
+        byte[] priBytes = Base64.encode(privateKey.getEncoded(), 0);
+        String privateK = new String(priBytes);
+        // Log.i("-----", "-----\n-----BEGIN PRIVATE KEY-----\n" + privateK + "-----END PRIVATE KEY-----\n");
+
+
         User user = new User();
         user.setUsername(username.replaceAll("\\s+$", ""));
         user.setThumbnail(r + "-" + g + "-" + b);
         user.setStatus("WAIT_PONG");
+
+        user.setPublicKey(publicK);
+        user.setPrivateKey(privateK);
 
         new AsyncTask<User, Void, Void>() {
             @Override
@@ -258,8 +220,8 @@ public class CreateContactActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("SEND OK", response.toString());
-
                         addNewUser(receiver);
+                        // TODO : Update status to WAIT_PONG
                     }
                 },
                 new Response.ErrorListener() {

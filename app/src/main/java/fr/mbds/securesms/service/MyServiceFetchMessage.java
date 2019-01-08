@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,15 +29,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +54,6 @@ import fr.mbds.securesms.R;
 import fr.mbds.securesms.db.room_db.AppDatabase;
 import fr.mbds.securesms.db.room_db.Message;
 import fr.mbds.securesms.db.room_db.User;
-import fr.mbds.securesms.kryptos.Cryptography;
 import fr.mbds.securesms.utils.MyURL;
 
 public class MyServiceFetchMessage extends Service {
@@ -290,8 +288,6 @@ public class MyServiceFetchMessage extends Service {
         final String s1;
         final String s2;
         final String[] decrypt = new String[1];
-        final PublicKey[] publicKey = new PublicKey[1];
-        // final String s3;
 
 
         if (tokensValues.length > 1) {
@@ -299,21 +295,54 @@ public class MyServiceFetchMessage extends Service {
             s2 = tokensValues[1];
 
             if (s1.equals("PING")) {
-                // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                new AsyncTask<Void, Void, Void>() {
+/*
+                // DONE : Generation de la Clef Secrete
+                KeyGenerator generator;
+                SecretKey secretKey = null;
+                try {
+                    generator = KeyGenerator.getInstance("AES");
+                    generator.init(128);
+                    secretKey = generator.generateKey();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+                assert secretKey != null;
+                Log.e("-----", "Genere SecretKey");
+                // Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
+                // Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
+                // Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
+                byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
+                String secretK = new String(secKBytes);
+                Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
+*/
+                Log.w("------RECEIVE PING 0", ""+db.userDao().getUser(username).toString());
+
+
+                final Handler handlerPING = new Handler();
+//                final SecretKey finalSecretKey = secretKey; // Copy Temp
+                final Runnable runnablePING = new Runnable() {
                     @Override
-                    protected Void doInBackground(Void... voids) {
-                        db.userDao().updateUser2(username, "SEND_PONG", s2);
-                        return null;
+                    public void run() {
+                        db.userDao().updateUserPublicKey(username, "SEND_PONG", s2);
+                        Log.w("------RECEIVE PING 1", ""+db.userDao().getUser(username).toString());
+//                        db.userDao().updateUserAes(username, Arrays.toString(finalSecretKey.getEncoded()));
+//                        Log.w("------RECEIVE PING 2", ""+db.userDao().getUser(username).toString());
                     }
-                }.execute();
+                };
+                handlerPING.postDelayed(runnablePING, 1000);
+
+                Log.w("------RECEIVE PING 3", ""+db.userDao().getUser(username).toString());
             }
             if (s1.equals("PONG")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        db.userDao().updateAES(username, s2);
+
+                        Log.w("-------", ""+s2);
+
+                        //db.userDao().updateUserAes(username, s2);
+                        /*
                         try {
                             keyStore = KeyStore.getInstance("AndroidKeyStore");
                             keyStore.load(null);
@@ -329,8 +358,8 @@ public class MyServiceFetchMessage extends Service {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        db.userDao().updateAES(username, decrypt[0]);
-                        db.userDao().updateUser2(username, "SECURE", publicKey[0].getEncoded().toString());
+                        db.userDao().updateUserAes(username, decrypt[0]);
+                        db.userDao().updateUser2(username, "SECURE", publicKey[0].getEncoded().toString());*/
                         return null;
                     }
                 }.execute();

@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
+// USER(uid , username , status , publicKey , privateKey , aesKey)
+
 @Entity(indices = {@Index(value = "username", unique = true)})
 public class User {
 
@@ -29,6 +31,13 @@ public class User {
     @ColumnInfo(name = "aesKey")
     private String aesKey;
 
+    @Override
+    public String toString() {
+        return "[\n" + getUsername() + " | " + getStatus() + "\n\n" +
+                "PUB_KEY = " + getPublicKey() + "\n\n" +
+                "PRI_KEY = " + getPrivateKey() + "\n\n" +
+                "SEC_KEY = " + getAesKey();
+    }
 
     public String getUsername() {
         return username;

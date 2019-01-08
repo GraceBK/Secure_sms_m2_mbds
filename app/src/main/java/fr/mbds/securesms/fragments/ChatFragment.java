@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,19 +32,15 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +53,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import fr.mbds.securesms.R;
 import fr.mbds.securesms.adapters.MyMsgAdapter;
@@ -109,11 +105,7 @@ public class ChatFragment extends Fragment {
         btnSendPong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    sendPong(res.getText().toString());
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
+                sendPong(res.getText().toString());
             }
         });
 
@@ -190,125 +182,103 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    public void sendPong(final String username) throws NoSuchAlgorithmException {
-        final String[] publicKey = new String[1];
-        final KeyStore keyStore;
-        final KeyStore.Entry entry;
-        final String[] uname = new String[1];
-        String crypt;
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
+    public PublicKey getPublicKey(String username) {
+        Log.w("------getPublicKey", ""+db.userDao().getUser(username).toString());
+        String pK = db.userDao().getUser(username).getPublicKey();
+        Log.e("-----", "*** "+pK);
+        Log.e("-----", "***2 "+db.userDao().getUser(username).getUsername());
 
-                publicKey[0] = db.userDao().getUser(username).getPublicKey();
-                return null;
-            }
-        }.execute();
+        // Convert String public Key to PublicKey
+        byte[] publicBytes = Base64.decode(pK.getBytes(), 0);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(Base64.decode(publicKey[0], 0));
-        PublicKey publicKey1 = null;
+        KeyFactory keyFactory;
+        PublicKey publicKey = null;
         try {
-            publicKey1 = keyFactory.generatePublic(encodedKeySpec);
-        } catch (InvalidKeySpecException e) {
+            keyFactory = KeyFactory.getInstance("RSA");
+            publicKey = keyFactory.generatePublic(keySpec);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+        assert publicKey != null;
+        Log.e("-----", "String to PublicKey");
+        Log.w("-----", "[ getAlgorithm ]" + publicKey.getAlgorithm());
+        Log.w("-----", "[ getFormat ]" + publicKey.getFormat());
+        Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey.getEncoded()));
 
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(128); // for example
-        SecretKey secretKey = keyGen.generateKey();
-
-        db.userDao().updateAES(username, secretKey.getEncoded().toString());
-
-        try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore.load(null);
-
-            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), publicKey1);
-
-//            crypt = chiffer(new String(Base64.encode(secretKey.getEncoded(), 0)), keyStore.getCertificate("alice").getPublicKey());
-            Log.w("SECRET KEY", new String(Base64.encode(secretKey.getEncoded(), 0)));
-            Log.w("PUBLIC KEY", new String(Base64.encode(publicKey1.getEncoded(), 0)));
-            Log.w("crypt", crypt);
-            requestCreateMsg(username, "PONG[|]" + crypt);
-
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            e.printStackTrace();
-        }
-
-//
-//        try {
-//            keyStore = KeyStore.getInstance("AndroidKeyStore");
-//            keyStore.load(null);
-//            keyStore.getCertificate(uname[0]).getPublicKey();
-//            publicKey = keyStore.getCertificate(uname[0]).getPublicKey();
-//            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-//            keyGen.init(256); // for example
-//            SecretKey secretKey = keyGen.generateKey();
-//
-//            try {
-//                crypt = String.valueOf(encryptAES(publicKey.getEncoded().toString(), secretKey.getEncoded().toString()));
-//                requestCreateMsg(username, "PONG[|]" + crypt);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//
-//        } catch (KeyStoreException e) {
-//            e.printStackTrace();
-//        } catch (CertificateException e) {
-//            e.printStackTrace();
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        db.userDao().updateUser(username, "SECURE");
+        return publicKey;
     }
 
-    String encrypted;
-    byte[] encryptedBytes;
-    public String chiffer(String plain, PublicKey publicKey){
+    public SecretKey generateSecretKey() {
+        // DONE : Generation de la Clef Secrete
+        KeyGenerator generator;
+        SecretKey secretKey = null;
+
         try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            encryptedBytes = cipher.doFinal(plain.getBytes());
-            encrypted = new String(encryptedBytes);
-            System.out.println("Chiffré  ? :" + new String(encryptedBytes));
+            generator = KeyGenerator.getInstance("AES");
+            generator.init(128);
+            secretKey = generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        }
+        assert secretKey != null;
+
+        Log.e("-----", "Genere SecretKey");
+        Log.w("-----", "[ getAlgorithm ]" + secretKey.getAlgorithm());
+        Log.w("-----", "[ getFormat ]" + secretKey.getFormat());
+        Log.w("-----", "[ getEncoded ]" + Arrays.toString(secretKey.getEncoded()));
+
+        return secretKey;
+    }
+
+
+    public String chiffrer(byte[] secKBytes, PublicKey publicKey) {
+        // DONE : ENCODE
+        String chiffree;
+        byte[] encodeTxt = null;
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            encodeTxt = cipher.doFinal(secKBytes);
+            Log.i("[ENCODE]", new String(encodeTxt));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
-        return encrypted;
+        chiffree = new String(encodeTxt);
+
+        return chiffree;
     }
 
-    private static int BLOCKS = 128;
+    @SuppressLint("StaticFieldLeak")
+    public void sendPong(final String username) {
 
-    public static byte[] encryptAES(String seed, String cleartext)
-            throws Exception {
-        byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
-        SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-        return cipher.doFinal(cleartext.getBytes("UTF8"));
-    }
+        PublicKey publicKey = getPublicKey(username);
+        Log.e("-----", "String to PublicKey");
 
-    private static byte[] getRawKey(byte[] seed) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-        sr.setSeed(seed);
-        kgen.init(BLOCKS, sr); // 192 and 256 bits may not be available
-        SecretKey skey = kgen.generateKey();
-        byte[] raw = skey.getEncoded();
-        return raw;
+
+        final SecretKey secretKey = generateSecretKey();
+        Log.e("-----", "secretKey\n"+secretKey);
+
+        final byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
+        final String secretK = new String(secKBytes);
+        Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
+
+        //db.userDao().updateUserAes(username, Arrays.toString(secretKey.getEncoded()));
+//        db.userDao().updateUserAes(username, new String(secKBytes));
+
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                db.userDao().updateUserAes(username, Arrays.toString(secretKey.getEncoded()));
+                Log.w("------sendPong", ""+db.userDao().getUser(username).toString());
+            }
+        };
+        handler.postDelayed(runnable, 1000);
+
+        Log.w("CCCCCCCC", chiffrer(secKBytes, publicKey));
+
+        requestCreateMsg(username, "PONG[|]"+chiffrer(secKBytes, publicKey));
     }
 
 
@@ -318,11 +288,27 @@ public class ChatFragment extends Fragment {
                 saveLocalNewMsg(res.getText().toString(), editSms.getText().toString(), false, true);
 
                 // TODO : send server
+
+
+
+                byte[] secKBytes = db.userDao().getUser(res.getText().toString()).getAesKey().getBytes();
+
+                /*// DONE : DECODE
+                byte[] decodeTxt;
+                try {
+                    Cipher cipher = Cipher.getInstance("RSA");
+                    cipher.init(Cipher.DECRYPT_MODE, privateKey);
+                    decodeTxt = cipher.doFinal(encodeTxt);
+                    Log.i("[DECODE]", new String(decodeTxt));
+                } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                }*/
+
                 String aEnvoyer = editSms.getText().toString();
                 String crypt;
                 try {
-                    crypt = new String(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
-                    requestCreateMsg(res.getText().toString(), "MSG[|]" + crypt);
+                    // crypt = new String(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
+                    requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -383,6 +369,15 @@ public class ChatFragment extends Fragment {
                     public void onResponse(JSONObject response) {
                         Log.i("SEND OK", response.toString());
                         // TODO : save Local
+                        final Handler handler = new Handler();
+                        final Runnable runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                db.userDao().updateUserStatus(receiver, "SECURE");
+                                Log.w("------UPDATE STATUS", ""+db.userDao().getUser(receiver).toString());
+                            }
+                        };
+                        handler.postDelayed(runnable, 1000);
                     }
                 },
                 new Response.ErrorListener() {
@@ -492,74 +487,4 @@ public class ChatFragment extends Fragment {
             Log.e("[ERROR onStart]", ""+e);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    public void requestGetSMS() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-
-        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, MyURL.GET_SMS.toString(), null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        //Toast.makeText(getContext(), "GOOD "+response, Toast.LENGTH_SHORT).show();
-                        try {
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject sms = response.getJSONObject(i);
-                                String author = sms.getString("author");
-                                String msg = sms.getString("msg");
-                                String dateCreated = sms.getString("dateCreated");
-                                Log.i("SMS", "@@@@@@@@@@@@@@@@@@@@@@@"+sms);
-
-                                //adapter.add(new Message(author, msg, true));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), "AuthFailureError", Toast.LENGTH_SHORT).show();
-                        Log.e("ERROR SMS", error.toString());
-                    }
-                })
-        {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
-                String auth = sharedPref.getString("access_token", "No Access token");
-                Log.e("--->", auth);
-
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Bearer "+auth);
-                return headers;
-            }
-        };
-        queue.add(arrayRequest);
-    }
-    */
-
 }
