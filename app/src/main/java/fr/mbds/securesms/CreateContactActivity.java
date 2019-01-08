@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,20 +25,13 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -120,19 +111,42 @@ public class CreateContactActivity extends AppCompatActivity {
         PublicKey publicKey = keyPair.getPublic();
 
         assert publicKey != null;
-        Log.w("-----", "Auteur[|]"+"getAlgorithm[|]" + publicKey.getAlgorithm());
-        Log.w("-----", "Auteur[|]"+"getFormat[|]" + publicKey.getFormat());
-        Log.w("-----", "Auteur[|]"+"getEncoded[|]" + Arrays.toString(publicKey.getEncoded()));
+        Log.d("-----", "Get PublicKey");
+        // Log.w("-----", "[ getAlgorithm ]" + publicKey.getAlgorithm());
+        // Log.w("-----", "[ getFormat ]" + publicKey.getFormat());
+        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(publicKey.getEncoded()));
+        byte[] puKBytes = Base64.encode(publicKey.getEncoded(), 0);
+        String pK = new String(puKBytes);
+        Log.i("-----", "-----\n-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n");
 
+        PrivateKey privateKey = keyPair.getPrivate();
 
-        byte[] pKBytes = Base64.encode(publicKey.getEncoded(), 0);
-        String pK = new String(pKBytes);
-        // String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
-        Log.w("-----", "-----\n-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n");
+        assert privateKey != null;
+        // Log.d("-----", "Get PrivateKey");
+        // Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
+        // Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
+        // Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
+        byte[] priBytes = Base64.encode(privateKey.getEncoded(), 0);
+        String privateK = new String(priBytes);
+        Log.i("-----", "-----\n-----BEGIN PRIVATE KEY-----\n" + privateK + "-----END PRIVATE KEY-----\n");
+
+        // DONE : Sauvegarde des Clefs PublicKey et PrivateKey dans un SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("pubAlgo", publicKey.getAlgorithm());
+        editor.putString("pubFormat", publicKey.getFormat());
+        // editor.putString("pubEncoded", Arrays.toString(publicKey.getEncoded()));
+        editor.putString("pubEncoded", pK);
+
+        editor.putString("priAlgo", privateKey.getAlgorithm());
+        editor.putString("priFormat", privateKey.getFormat());
+        // editor.putString("priEncoded", Arrays.toString(privateKey.getEncoded()));
+        editor.putString("priEncoded", privateK);
+        editor.apply();
 
         // TODO : requestCreateMsg(username, "PING[|]" + pK);
 /*------------------------------------------------------------------------------------------------*/
-        byte[] publicBytes = Base64.decode(pKBytes, 0);
+        byte[] publicBytes = Base64.decode(puKBytes, 0);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
 
         KeyFactory keyFactory;
@@ -154,6 +168,7 @@ public class CreateContactActivity extends AppCompatActivity {
 
 
 
+        // DONE : Generation de la Clef Secrete
         KeyGenerator generator;
         SecretKey secretKey = null;
         try {
@@ -165,43 +180,27 @@ public class CreateContactActivity extends AppCompatActivity {
         }
         assert secretKey != null;
         Log.e("-----", "Genere SecretKey");
-        Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
-        Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
-        Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
-
-        byte[] sKBytes = Base64.encode(secretKey.getEncoded(), 0);
-        String sK = new String(sKBytes);
-        // String pubKey = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
-        Log.w("-----", "AES KEY : " + sK);
+        // Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
+        // Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
+        // Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
+        byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
+        String secretK = new String(secKBytes);
+        Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
 
 
-        /**
-         * ENCODE
-         */
+
+        // DONE : ENCODE
         byte[] encodeTxt = null;
         try {
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey1);
-            encodeTxt = cipher.doFinal(sKBytes);
+            encodeTxt = cipher.doFinal(secKBytes);
             Log.i("[ENCODE]", new String(encodeTxt));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
-
-
-        PrivateKey privateKey = keyPair.getPrivate();
-
-        assert privateKey != null;
-        Log.e("-----", "Get PrivateKey");
-        Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
-        Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
-        Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
-
-
-        /**
-         * DECODE
-         */
-        byte[] decodeTxt = null;
+        // DONE : DECODE
+        byte[] decodeTxt;
         try {
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
