@@ -68,7 +68,6 @@ public class ChatFragment extends Fragment {
     private TextView res;
     private EditText editSms;
     private Button send;
-    //private Button btnSendPing;
     private Button btnSendPong;
 
     private ListView listView;
@@ -302,28 +301,6 @@ public class ChatFragment extends Fragment {
                 // TODO : send server
 
                 requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
-
-                //byte[] secKBytes = db.userDao().getUser(res.getText().toString()).getAesKey().getBytes();
-
-                /*// DONE : DECODE
-                byte[] decodeTxt;
-                try {
-                    Cipher cipher = Cipher.getInstance("RSA");
-                    cipher.init(Cipher.DECRYPT_MODE, privateKey);
-                    decodeTxt = cipher.doFinal(encodeTxt);
-                    Log.i("[DECODE]", new String(decodeTxt));
-                } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                }*/
-
-                /*String aEnvoyer = editSms.getText().toString();
-                String crypt;
-                try {
-                    // crypt = new String(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
-                    requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
             } else {
                 Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }
@@ -416,7 +393,7 @@ public class ChatFragment extends Fragment {
 
     public void changeDataPropriete(final Bundle bundle) {
         res.setText(bundle.getString("USERNAME"));
-        /*if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
+        if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
             Log.e("MESSAGES", bundle.getString("USERNAME")+"*****"+bundle.getString("MESSAGES"));
             try {
                 //Log.w("MESSAGES", "*****"+db.messageDao().loadMessageForMsgUser(bundle.getString("USERNAME")));
@@ -424,7 +401,6 @@ public class ChatFragment extends Fragment {
                 viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
                     @Override
                     public void onChanged(@Nullable List<Message> messages) {
-                        adapter.clear();
                         adapter.notifyDataSetChanged();
                         adapter.addManyMassage(messages);
                         for (Message a : messages) {
@@ -439,9 +415,9 @@ public class ChatFragment extends Fragment {
                 Log.e("", ""+e);
             }
             adapter.notifyDataSetInvalidated();
-        }*/
+        }
 
-        try {
+        /*try {
 
             assert getArguments() != null;
             editSms.setText(getArguments().getString("TXT_SHARED"));
@@ -497,6 +473,6 @@ public class ChatFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e("[ERROR onStart]", ""+e);
-        }
+        }*/
     }
 }

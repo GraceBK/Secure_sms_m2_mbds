@@ -1,6 +1,5 @@
 package fr.mbds.securesms.fragments;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -74,12 +73,6 @@ public class ListContactFragment extends Fragment {
         }
     }
 
-    /*@Override
-    public void onDetach() {
-        super.onDetach();
-        callback = null;
-    }*/
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -121,8 +114,6 @@ public class ListContactFragment extends Fragment {
                     args.putString("USERNAME", userList.get(position).getUsername());
                     args.putString("MESSAGES", userList.get(position).getUsername());
                     args.putString("TXT_SHARED", sharedTXT);
-                    // args.putString("RESUME", userList.get(pos).getResume());
-                    //fragment.setArguments(args);
 
                     int currentOrientation = getResources().getConfiguration().orientation;
                     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -130,10 +121,7 @@ public class ListContactFragment extends Fragment {
                         setSwipe(true);
                         click(swipe);
 
-                    }/* else {
-                        setSwipe(true);
-                        click(swipe);
-                    }*/
+                    }
 
                     sendDataToChatFragment(args);
                 } catch (Exception e) {

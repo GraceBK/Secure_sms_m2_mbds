@@ -7,8 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import java.util.Objects;
-
 import fr.mbds.securesms.service.MyServiceFetchMessage;
 
 public class MyBroadcast extends BroadcastReceiver {

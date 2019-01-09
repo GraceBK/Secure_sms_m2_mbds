@@ -29,17 +29,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,10 +44,7 @@ import java.util.Random;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import fr.mbds.securesms.MainActivity;
 import fr.mbds.securesms.R;
@@ -297,24 +289,17 @@ public class MyServiceFetchMessage extends Service {
             s2 = tokensValues[1];
 
             if (s1.equals("PING")) {
-                //Log.w("------RECEIVE PING 0", ""+db.userDao().getUser(username).toString());
-
-
                 final Handler handlerPING = new Handler();
-//                final SecretKey finalSecretKey = secretKey; // Copy Temp
                 final Runnable runnablePING = new Runnable() {
                     @Override
                     public void run() {
                         db.userDao().updateUserPublicKey(username, "SEND_PONG", s2);
                         Log.w("------RECEIVE PING 1", ""+db.userDao().getUser(username).toString());
-//                        db.userDao().updateUserAes(username, Arrays.toString(finalSecretKey.getEncoded()));
-//                        Log.w("------RECEIVE PING 2", ""+db.userDao().getUser(username).toString());
                     }
                 };
                 handlerPING.postDelayed(runnablePING, 1000);
-
-                Log.w("------RECEIVE PING 3", ""+db.userDao().getUser(username).toString());
             }
+
             if (s1.equals("PONG")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
 
@@ -341,6 +326,7 @@ public class MyServiceFetchMessage extends Service {
                 };
                 handlerPONG.postDelayed(runnablePONG, 1000);
             }
+
             if (s1.equals("MSG")) {
                 Message message = new Message();
                 message.setId(id);
