@@ -170,13 +170,21 @@ public class MyServiceFetchMessage extends Service {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject sms = response.getJSONObject(i);
                                 String idMsg = sms.getString("id");
-                                String author = sms.getString("author");
+                                final String author = sms.getString("author");
                                 String body = sms.getString("msg");
                                 String dateCreated = sms.getString("dateCreated");
                                 boolean alreadyReturned = sms.getBoolean("alreadyReturned");
                                 boolean currentUser = false;
 
-                                saveNewContact(author);
+                                Handler handler2 = new Handler();
+                                Runnable runnable2 = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        saveNewContact(author);
+                                    }
+                                };
+                                handler2.postDelayed(runnable2, 1000);
+
 
                                 if (!alreadyReturned) {
                                     newNotification(author);
@@ -302,13 +310,13 @@ public class MyServiceFetchMessage extends Service {
 
             if (s1.equals("PONG")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-
+/*
                 final PrivateKey privateKey = getPrivateKey(username);
                 final byte[] ttttt = Base64.decode(s2, 0);
                 String test = new String(ttttt);
                 Log.e("-----", "String to PrivateKey\n TXT = \n"+s2.length()+" = "+ s2);
                 Log.e("-----", "String to PrivateKey\n TXT = \n"+test+" = "+test.length());
-
+*/
                 // String res = dechiffer(test.getBytes(), privateKey);
 
                 // Log.e("-----", "DECHIFFRE\n"+res);
@@ -345,6 +353,18 @@ public class MyServiceFetchMessage extends Service {
                         return null;
                     }
                 }.execute(message);
+
+
+                final Handler handlerPONG = new Handler();
+                final Runnable runnablePONG = new Runnable() {
+                    @Override
+                    public void run() {
+                        db.userDao().updateUserStatus(username, "NEW");
+                        Log.w("------UPDATE STATUS", ""+db.userDao().getUser(username).toString());
+                    }
+                };
+                handlerPONG.postDelayed(runnablePONG, 1000);
+
             }
 
         }

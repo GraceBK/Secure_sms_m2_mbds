@@ -39,6 +39,7 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
         User user = userList.get(i);
         myViewHolder.username.setText(user.getUsername());
+        myViewHolder.username.setTextColor(Color.rgb(0,0,0));
 
         String[] color = user.getThumbnail().split("-");
         int alpha = 70;
@@ -68,6 +69,10 @@ public class MyUserAdapter extends RecyclerView.Adapter<MyUserAdapter.MyViewHold
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock_open);
             myViewHolder.shortResume.setText("");
 
+        } else if (user.getStatus().equals("NEW")) {
+            myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock);
+            myViewHolder.shortResume.setText("\uD83D\uDC41 Nouveau Message");
+            myViewHolder.username.setTextColor(Color.rgb(200,0,0));
         } else {// PONG_RECEIVE
             myViewHolder.imgSecure.setBackgroundResource(R.drawable.ic_lock);
             myViewHolder.shortResume.setText("Chat secure");

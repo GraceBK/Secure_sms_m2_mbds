@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -101,11 +102,12 @@ public class ListContactFragment extends Fragment {
 
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), recyclerView, new ClickListener() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, final int position) {
                 try {
                     SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_user), Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.apply();
+
 
                     String sharedTXT = preferences.getString(getString(R.string.pref_shared_txt), "");
 
@@ -114,6 +116,15 @@ public class ListContactFragment extends Fragment {
                     args.putString("USERNAME", userList.get(position).getUsername());
                     args.putString("MESSAGES", userList.get(position).getUsername());
                     args.putString("TXT_SHARED", sharedTXT);
+
+                    final Handler handlerPONG = new Handler();
+                    final Runnable runnablePONG = new Runnable() {
+                        @Override
+                        public void run() {
+                            db.userDao().updateUserStatus(userList.get(position).getUsername(), "SECURE");
+                        }
+                    };
+                    handlerPONG.postDelayed(runnablePONG, 1000);
 
                     int currentOrientation = getResources().getConfiguration().orientation;
                     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {

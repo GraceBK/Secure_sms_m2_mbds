@@ -109,7 +109,7 @@ public class ChatFragment extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        //startActivity(getActivity().getIntent());
+                        startActivity(getActivity().getIntent());
                     }
                 }, 1000);
             }
@@ -393,86 +393,25 @@ public class ChatFragment extends Fragment {
 
     public void changeDataPropriete(final Bundle bundle) {
         res.setText(bundle.getString("USERNAME"));
-        if (!Objects.equals(bundle.getString("MESSAGES"), "")) {
-            Log.e("MESSAGES", bundle.getString("USERNAME")+"*****"+bundle.getString("MESSAGES"));
+        Log.w("ttttttt", res.getText().toString());
+        Log.w("ttttttt", "*****"+db.messageDao().loadMessageForMsgUser(bundle.getString("USERNAME")).getValue());
+        if (!res.getText().toString().equals("")) {
             try {
-                //Log.w("MESSAGES", "*****"+db.messageDao().loadMessageForMsgUser(bundle.getString("USERNAME")));
-                viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), bundle.getString("USERNAME"))).get(MessageViewModel.class);
-                viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Message> messages) {
-                        adapter.notifyDataSetChanged();
-                        adapter.addManyMassage(messages);
-                        for (Message a : messages) {
-                            Log.w("MESSAGES", "*****"+a.getMessage());
-                        }
-                        adapter.addManyMassage(messages);
 
-                        //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
+                final Handler test = new Handler();
+                Runnable runnableTest = new Runnable() {
+                    @Override
+                    public void run() {
+                        List<Message> messages;
+                        messages = db.messageDao().loadMsgUser(res.getText().toString());
+                        adapter.addManyMassage(messages);
                     }
-                });
+                };
+                test.postDelayed(runnableTest, 100);
+                adapter.notifyDataSetChanged();
             } catch (Exception e) {
                 Log.e("", ""+e);
             }
-            adapter.notifyDataSetInvalidated();
         }
-
-        /*try {
-
-            assert getArguments() != null;
-            editSms.setText(getArguments().getString("TXT_SHARED"));
-
-            User tt = db.userDao().getUser(bundle.getString("USERNAME"));
-
-            String t = db.userDao().getUser(bundle.getString("USERNAME")).getStatus();
-
-            Toast.makeText(getContext(), tt.getUsername()+" pub key "+tt.getStatus(), Toast.LENGTH_LONG).show();
-            Log.w("[GRACE]", bundle.getString("USERNAME")+" setStatus = " + t);
-
-            if (tt.getStatus().equals("SEND_PING")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            }
-
-            else if (tt.getStatus().equals("WAIT_PONG")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            }
-
-            else if (tt.getStatus().equals("SEND_PONG")) {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.GONE);
-            } else {
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ping_bis).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong).setVisibility(View.GONE);
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_pong_bis).setVisibility(View.GONE);
-
-                Objects.requireNonNull(getView()).findViewById(R.id.chat_ll).setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getView()).findViewById(R.id.layout_edt_sms).setVisibility(View.VISIBLE);
-
-                viewModel = ViewModelProviders.of(this, new MyViewModelFactory(this.getActivity().getApplication(), bundle.getString("USERNAME"))).get(MessageViewModel.class);
-                viewModel.getMessageList().observe(this, new Observer<List<Message>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Message> messages) {
-                        adapter.addManyMassage(messages);
-                        //Toast.makeText(getContext(), "Message " + messages.get(adapter.getCount() - 1).getId(), Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        } catch (Exception e) {
-            Log.e("[ERROR onStart]", ""+e);
-        }*/
     }
 }
