@@ -297,7 +297,7 @@ public class MyServiceFetchMessage extends Service {
             s2 = tokensValues[1];
 
             if (s1.equals("PING")) {
-                Log.w("------RECEIVE PING 0", ""+db.userDao().getUser(username).toString());
+                //Log.w("------RECEIVE PING 0", ""+db.userDao().getUser(username).toString());
 
 
                 final Handler handlerPING = new Handler();
@@ -319,11 +319,14 @@ public class MyServiceFetchMessage extends Service {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
 
                 final PrivateKey privateKey = getPrivateKey(username);
+                final byte[] ttttt = Base64.decode(s2, 0);
+                String test = new String(ttttt);
                 Log.e("-----", "String to PrivateKey\n TXT = \n"+s2.length()+" = "+ s2);
+                Log.e("-----", "String to PrivateKey\n TXT = \n"+test+" = "+test.length());
 
-                String res = dechiffer(s2.getBytes(), privateKey);
+                // String res = dechiffer(test.getBytes(), privateKey);
 
-                Log.e("-----", "DECHIFFRE\n"+res);
+                // Log.e("-----", "DECHIFFRE\n"+res);
 
 
 
@@ -331,26 +334,18 @@ public class MyServiceFetchMessage extends Service {
                 final Runnable runnablePONG = new Runnable() {
                     @Override
                     public void run() {
-                        //db.userDao().updateUserAes(username, );
-                        // db.userDao().updateUserStatus(username, "SECURE");
-                        Log.w("------UPDATE STATUS", ""+db.userDao().getUser(username).toString());
+                        db.userDao().updateUserAes(username, s2);
+                        db.userDao().updateUserStatus(username, "SECURE");
                         Log.w("------UPDATE STATUS", ""+db.userDao().getUser(username).toString());
                     }
                 };
                 handlerPONG.postDelayed(runnablePONG, 1000);
             }
             if (s1.equals("MSG")) {
-                /*Message message = new Message();
+                Message message = new Message();
                 message.setId(id);
                 message.setAuthor(username);
-                String dechiffre;
-                try {
-                    dechiffre = new String(decryptAES(decrypt[0], s2.getBytes()));
-                    message.setMessage(dechiffre);
-                    Log.w("DECHIFFRE", dechiffre);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                message.setMessage(s2);
                 message.setDateCreated(date);
                 message.setAlreadyReturned(alreadyReturned);
                 message.setCurrentUser(currentUser);
@@ -363,7 +358,7 @@ public class MyServiceFetchMessage extends Service {
                         }
                         return null;
                     }
-                }.execute(message);*/
+                }.execute(message);
             }
 
         }

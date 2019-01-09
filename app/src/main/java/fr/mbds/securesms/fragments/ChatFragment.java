@@ -106,6 +106,13 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 sendPong(res.getText().toString());
+                //getFragmentManager().beginTransaction().detach(getActivity().fra).attach(this).commit();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //startActivity(getActivity().getIntent());
+                    }
+                }, 1000);
             }
         });
 
@@ -294,9 +301,9 @@ public class ChatFragment extends Fragment {
 
                 // TODO : send server
 
+                requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
 
-
-                byte[] secKBytes = db.userDao().getUser(res.getText().toString()).getAesKey().getBytes();
+                //byte[] secKBytes = db.userDao().getUser(res.getText().toString()).getAesKey().getBytes();
 
                 /*// DONE : DECODE
                 byte[] decodeTxt;
@@ -309,14 +316,14 @@ public class ChatFragment extends Fragment {
                     e.printStackTrace();
                 }*/
 
-                String aEnvoyer = editSms.getText().toString();
+                /*String aEnvoyer = editSms.getText().toString();
                 String crypt;
                 try {
                     // crypt = new String(encryptAES(db.userDao().getUser(res.getText().toString()).getAesKey(), aEnvoyer));
                     requestCreateMsg(res.getText().toString(), "MSG[|]" + editSms.getText().toString());
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
             } else {
                 Toast.makeText(getContext(), "Message LLLLLL", Toast.LENGTH_LONG).show();
             }
