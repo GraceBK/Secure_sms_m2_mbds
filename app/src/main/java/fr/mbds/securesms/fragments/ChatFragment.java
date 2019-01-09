@@ -216,7 +216,7 @@ public class ChatFragment extends Fragment {
 
         try {
             generator = KeyGenerator.getInstance("AES");
-            generator.init(128);
+            generator.init(256);
             secretKey = generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -237,16 +237,17 @@ public class ChatFragment extends Fragment {
         String chiffree;
         byte[] encodeTxt = null;
         try {
-            Cipher cipher = Cipher.getInstance("RSA");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             encodeTxt = cipher.doFinal(secKBytes);
+            Log.i("[ENCODE]", Arrays.toString(encodeTxt));
             Log.i("[ENCODE]", new String(encodeTxt));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
         chiffree = new String(encodeTxt);
 
-        return chiffree;
+        return Arrays.toString(encodeTxt);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -262,6 +263,7 @@ public class ChatFragment extends Fragment {
         final byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
         final String secretK = new String(secKBytes);
         Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
+        Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secKBytes + "-----END SECRET KEY-----\n");
 
         //db.userDao().updateUserAes(username, Arrays.toString(secretKey.getEncoded()));
 //        db.userDao().updateUserAes(username, new String(secKBytes));
@@ -276,9 +278,12 @@ public class ChatFragment extends Fragment {
         };
         handler.postDelayed(runnable, 1000);
 
-        Log.w("CCCCCCCC", chiffrer(secKBytes, publicKey));
+        String res = chiffrer(secKBytes, publicKey);
 
-        requestCreateMsg(username, "PONG[|]"+chiffrer(secKBytes, publicKey));
+        Log.w("CCCCCCCC", ""+res.length()+"\n"+Arrays.toString(secretKey.getEncoded()));
+        Log.w("send", ""+ res);
+
+        requestCreateMsg(username, "PONG[|]"+res);
     }
 
 

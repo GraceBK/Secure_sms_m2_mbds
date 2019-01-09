@@ -29,12 +29,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -255,7 +260,7 @@ public class MyServiceFetchMessage extends Service {
 
 
 
-    public static byte[] decryptAES(String seed, byte[] data) throws Exception {
+    /*public static byte[] decryptAES(String seed, byte[] data) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes("UTF8"));
         SecretKeySpec skeySpec = new SecretKeySpec(rawKey, "AES");
         Cipher cipher = Cipher.getInstance("AES");
@@ -273,10 +278,7 @@ public class MyServiceFetchMessage extends Service {
         SecretKey skey = kgen.generateKey();
         byte[] raw = skey.getEncoded();
         return raw;
-    }
-
-    KeyStore keyStore;
-    KeyStore.Entry entry;
+    }*/
 
     @SuppressLint("StaticFieldLeak")
     private void saveNewMsg(final String id, final String username, final String body, String date, boolean alreadyReturned, boolean currentUser) {
@@ -295,26 +297,6 @@ public class MyServiceFetchMessage extends Service {
             s2 = tokensValues[1];
 
             if (s1.equals("PING")) {
-/*
-                // DONE : Generation de la Clef Secrete
-                KeyGenerator generator;
-                SecretKey secretKey = null;
-                try {
-                    generator = KeyGenerator.getInstance("AES");
-                    generator.init(128);
-                    secretKey = generator.generateKey();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-                assert secretKey != null;
-                Log.e("-----", "Genere SecretKey");
-                // Log.w("-----", "SECRET KEY ALGO[|]" + secretKey.getAlgorithm());
-                // Log.w("-----", "SECRET KEY FORMAT[|]" + secretKey.getFormat());
-                // Log.w("-----", "SECRET KEY ENCODED[|]" + Arrays.toString(secretKey.getEncoded()));
-                byte[] secKBytes = Base64.encode(secretKey.getEncoded(), 0);
-                String secretK = new String(secKBytes);
-                Log.i("-----", "-----\n-----BEGIN SECRET KEY-----\n" + secretK + "-----END SECRET KEY-----\n");
-*/
                 Log.w("------RECEIVE PING 0", ""+db.userDao().getUser(username).toString());
 
 
@@ -335,37 +317,30 @@ public class MyServiceFetchMessage extends Service {
             }
             if (s1.equals("PONG")) {
                 // TODO update user (PublicKey) /!\ ideal dans la KeyStore
-                new AsyncTask<Void, Void, Void>() {
+
+                final PrivateKey privateKey = getPrivateKey(username);
+                Log.e("-----", "String to PrivateKey\n TXT = \n"+s2.length()+" = "+ s2);
+
+                String res = dechiffer(s2.getBytes(), privateKey);
+
+                Log.e("-----", "DECHIFFRE\n"+res);
+
+
+
+                final Handler handlerPONG = new Handler();
+                final Runnable runnablePONG = new Runnable() {
                     @Override
-                    protected Void doInBackground(Void... voids) {
-
-                        Log.w("-------", ""+s2);
-
-                        //db.userDao().updateUserAes(username, s2);
-                        /*
-                        try {
-                            keyStore = KeyStore.getInstance("AndroidKeyStore");
-                            keyStore.load(null);
-                            publicKey[0] = keyStore.getCertificate("alice").getPublicKey();
-                        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        try {
-                            decrypt[0] = dechiffer(s2, ((KeyStore.PrivateKeyEntry)keyStore.getEntry("alice",null)).getPrivateKey());
-                            Log.w("DECRYPT[0]", decrypt[0]);
-                            //decrypt[0] = String.valueOf(decryptAES(publicKey[0].getEncoded().toString(),s2.getBytes()));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        db.userDao().updateUserAes(username, decrypt[0]);
-                        db.userDao().updateUser2(username, "SECURE", publicKey[0].getEncoded().toString());*/
-                        return null;
+                    public void run() {
+                        //db.userDao().updateUserAes(username, );
+                        // db.userDao().updateUserStatus(username, "SECURE");
+                        Log.w("------UPDATE STATUS", ""+db.userDao().getUser(username).toString());
+                        Log.w("------UPDATE STATUS", ""+db.userDao().getUser(username).toString());
                     }
-                }.execute();
+                };
+                handlerPONG.postDelayed(runnablePONG, 1000);
             }
             if (s1.equals("MSG")) {
-                Message message = new Message();
+                /*Message message = new Message();
                 message.setId(id);
                 message.setAuthor(username);
                 String dechiffre;
@@ -388,32 +363,56 @@ public class MyServiceFetchMessage extends Service {
                         }
                         return null;
                     }
-                }.execute(message);
+                }.execute(message);*/
             }
 
         }
     }
 
-    private byte[] decryptedBytes;
 
-    public String dechiffer(String encryptedBytes, PrivateKey privateKey){
+    private PrivateKey getPrivateKey(String username) {
+        Log.w("------getPrivateKey", ""+db.userDao().getUser(username).toString());
+        String privateK = db.userDao().getUser(username).getPrivateKey();
+        Log.e("-----", "*** "+privateK);
+        Log.e("-----", "***2 "+db.userDao().getUser(username).getUsername());
+
+        // Convert String private Key to PrivateKey
+        byte[] privateBytes = Base64.decode(privateK.getBytes(), 0);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateBytes);
+
+        KeyFactory keyFactory;
+        PrivateKey privateKey = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+            privateKey = keyFactory.generatePrivate(keySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        assert privateKey != null;
+        Log.e("-----", "String to PrivateKey");
+        Log.w("-----", "[ getAlgorithm ]" + privateKey.getAlgorithm());
+        Log.w("-----", "[ getFormat ]" + privateKey.getFormat());
+        Log.w("-----", "[ getEncoded ]" + Arrays.toString(privateKey.getEncoded()));
+
+        return privateKey;
+    }
+
+    public String dechiffer(byte[] encodeBytes, PrivateKey privateKey) {
+        // DONE : DECODE
+        String dechiffre;
+        byte[] decodeTxt = null;
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            decryptedBytes = cipher.doFinal(encryptedBytes.getBytes());
-            System.out.println("Chiffré  ? :" + new String(decryptedBytes));
-        } catch (NoSuchAlgorithmException e) {
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+            Log.w("[DECODE]2", encodeBytes.length+" \n"+ new String(encodeBytes));
+            decodeTxt = cipher.doFinal(encodeBytes);
+            Log.i("[DECODE]", new String(decodeTxt));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
-        return new String(decryptedBytes);
+        dechiffre =  new String(decodeTxt);
+
+        return dechiffre;
     }
 
 }
